@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta id="i18n_pagename" content="common">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Agora RTM Demos</title>
+  <link rel="stylesheet" href="./assets/bootstrap.min.css">
+  <link rel="stylesheet" href="./assets/index.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-57262777-1"></script>
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f43104b858cabd64f03a2e1f8c387296";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+  <style>
+    .wrapper {
+      display: flex;
+    }
+
+    .left {
+      flex: 0 0 350px;
+      max-width: 350px;
+      overflow: hidden;
+    }
+
+    .right {
+      flex: 1 1 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- banner -->
+  <div class="container-fluid banner">
+    <p class="banner-text">Agora RTM Demos</p>
+    <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 60px; top: 10px;"
+      class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
+      <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
+        aria-hidden="true">
+        <path fill-rule="evenodd"
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+        </path>
+      </svg>
+    </a>
+  </div>
+
+  <div class="wrapper">
+    <!-- left -->
+    <!-- right -->
+
+    <section class="right">
+      <div class="container">
+        <h1 id="1"><label>Basic</label></h1>
+        <div class="card-deck">
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Channel Messaging</label></h5>
+              <p class="card-text"><label>Simple Channel Messaging</label></p>
+              <a href="./Basic/1_ChannelMessaging/index.html" class=" btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Peer-to-Peer Messaging</label></h5>
+              <p class="card-text"><label>Simple Peer-to-Peer Messaging</label></p>
+              <a href="./Basic/2_Peer_to_Peer_Messaging/index.html" class=" btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Stream Messaging</label></h5>
+              <p class="card-text"><label>Simple Stream Messaging</label></p>
+              <a href="./Basic/3_StreamMessaging/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <h1 id="2"><label>Advanced</label></h1>
+        <div class="card-deck">
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Poll</label></h5>
+              <p class="card-text"><label>Setup polls through Message Channel</label></p>
+              <a href="./Advanced/1_Polling/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Quiz</label></h5>
+              <p class="card-text"><label>Setup a quiz game and score through Message Channel and Presence Userstates</label></p>
+              <a href="./Advanced/2_Quiz/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Live Auction</label></h5>
+              <p class="card-text"><label>Live Auction scenario using Storage Channel Metadata</label></p>
+              <a href="./Advanced/3_LiveBidding/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Audio Recording</label></h5>
+              <p class="card-text"><label>Send audio recording through Message Channel</label></p>
+              <a href="./Advanced/5_AudioRecording/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>File Sharing</label></h5>
+              <p class="card-text"><label>Share files through Message Channel</label></p>
+              <a href="./Advanced/6_FileSharing/" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Audio Call</label></h5>
+              <p class="card-text"><label>P2P call using Agora RTC for audio call and RTM for call invitation</label></p>
+              <a href="./Advanced/5_AudioRecording/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Virtual Gifting</label></h5>
+              <p class="card-text"><label>Send virtual emojis through Message Channel</label></p>
+              <a href="./Advanced/8_VirtualGifting/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Minigame - TicTacTo</label></h5>
+              <p class="card-text"><label>TicTacToe game using Storage Channel Metadata</label></p>
+              <a href="./Advanced/9_Minigame_TicTacToe/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+          <div class="card demo-card">
+            <div class="card-body">
+              <h5 class="card-title"><label>Minigame - Go</label></h5>
+              <p class="card-text"><label>Go game using Storage Channel Metadataa</label></p>
+              <a href="./Advanced/10_MiniGame_Go/index.html" class="btn btn-primary demo-card-btn"><label 
+                >Try it Now</label></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+     
+        </div>
+      </div>
+    </section>
+  </div>
+
+  
+  <script src="./assets/jquery-3.4.1.min.js"></script>
+  <script src="./assets/jquery.cookie.js"></script>
+  <script src="./assets/jquery.i18n.properties-min.js"></script>
+  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./i18n/language.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      var headHeight = 200;
+      var nav = $(".navbar");
+      console.log($(window).width());
+      if ($(window).width() < 1500) {
+        console.log("hide!");
+        nav.parent().hide();
+        return;
+      }
+      $(window).resize(function () {
+        nav = $(".navbar");
+        if ($(window).width() < 1500) {
+          nav.hide();
+          return;
+        }
+        else {
+          nav.show()
+        }
+      })
+    })
+  </script>
+</body>
+
+</html>
