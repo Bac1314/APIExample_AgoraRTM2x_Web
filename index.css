@@ -1,0 +1,96 @@
+body { 
+  background-color: #1E1E1E;
+  color: #FFFFFF;
+  font-family: 'Montserrat'  /*'Roboto Mono', monospace; /* Apply the embedded font */
+}
+
+.banner {
+  padding: 0;
+  background-color: #52575c;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.banner-text {
+  padding: 8px 20px;
+  margin: 0;
+}
+
+.join-info-text {
+  padding: 20px 0px 0px 0px;
+}
+
+
+.card.demo-card {
+  margin-bottom: 30px;
+  flex: 0 0 300px;
+}
+
+.demo-card-btn {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+  border-radius: 30px
+}
+
+.card-text {
+  margin-bottom: 50px;
+  color: lightgray;
+}
+
+.card { 
+  background-color: #293232;
+  border-radius: 15px; /* Corner radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+}
+
+.customButton { 
+  /* position: absolute;
+  right: 15px;
+  bottom: 15px; */
+  border: 1px solid #ffffff;
+  padding: .375rem .75rem;
+  border-radius: 25px; 
+  color: #FFFFFF;
+  background-color: transparent;
+}
+
+.customButtonListAdjust { 
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.customButton:hover {
+  border: 1px solid deepskyblue;  /* Make the border transparent */
+  /* background-color: white; Gradient background */
+  /* background-clip: border-box; Clip background to border */
+  color: deepskyblue ;/*linear-gradient(90deg, #ff7e5f, #feb47b); /* Make text color transparent */
+  /* background-clip: text; Clip the background to the text */
+  /* -webkit-background-clip: text; For Safari */
+}
+
+.customIconColor { 
+  color: deepskyblue;  /* Make the border transparent */
+}
+
+.customInputStyle { 
+  border: 1.5px solid white;
+  border-radius: 20px;
+  background-color: transparent;
+  padding: 8px 10px;
+  color: white;
+}
+
+.customTip { 
+  color: gray;
+  font-size: small;
+  padding: 5px 5px;
+}
+
+/* Rounded border */
+hr.roundedDivider {
+  border-top: 1px solid #bbb;
+  border-radius: 5px;
+  /* padding: 0px 30px; */
+}

@@ -2,20 +2,22 @@
 <html lang="en">
 
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
+  <!--font-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <!--Icons-->
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Agora RTM Demos</title>
-  <link rel="stylesheet" href="./assets/bootstrap.min.css">
-  <link rel="stylesheet" href="./assets/index.css">
+  <link rel="stylesheet" href="./OtherAssets/bootstrap.min.css">
+  <link rel="stylesheet" href="./index.css">
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-57262777-1"></script>
   <script>
     var _hmt = _hmt || [];
@@ -49,7 +51,7 @@
   <div class="container-fluid banner">
     <p class="banner-text">Agora RTM Demos</p>
     <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 60px; top: 10px;"
-      class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
+      class="Header-link " href="https://github.com/Bac1314/APIExample_AgoraRTM2x_Web">
       <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
         aria-hidden="true">
         <path fill-rule="evenodd"
@@ -65,118 +67,119 @@
 
     <section class="right">
       <div class="container">
-        <h1 id="1"><label>Basic</label></h1>
+        <h2 id="1"><label>Basic</label></h2>
         <div class="card-deck">
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Channel Messaging</label></h5>
+              <h5 class="card-title"><label> <i class="material-icons customIconColor">message</i> Channel Messaging</label></h5>
               <p class="card-text"><label>Simple Channel Messaging</label></p>
-              <a href="./Basic/1_ChannelMessaging/index.html" class=" btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Basic/1_ChannelMessaging/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Peer-to-Peer Messaging</label></h5>
+              <h5 class="card-title"><label> <i class="material-icons customIconColor">group</i>  Peer-to-Peer Messaging</label></h5>
               <p class="card-text"><label>Simple Peer-to-Peer Messaging</label></p>
-              <a href="./Basic/2_Peer_to_Peer_Messaging/index.html" class=" btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Basic/2_Peer_to_Peer_Messaging/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Stream Messaging</label></h5>
+              <h5 class="card-title"><label> <i class="material-icons customIconColor">sensors</i>  Stream Messaging</label></h5>
               <p class="card-text"><label>Simple Stream Messaging</label></p>
-              <a href="./Basic/3_StreamMessaging/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Basic/3_StreamMessaging/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="container">
-        <h1 id="2"><label>Advanced</label></h1>
+        <h2 id="2"><label>Advanced</label></h2>
         <div class="card-deck">
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Poll</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">pie_chart</i> Poll</label></h5>
               <p class="card-text"><label>Setup polls through Message Channel</label></p>
-              <a href="./Advanced/1_Polling/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/1_Polling/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Quiz</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">ballot</i> Quiz</label></h5>
               <p class="card-text"><label>Setup a quiz game and score through Message Channel and Presence Userstates</label></p>
-              <a href="./Advanced/2_Quiz/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/2_Quiz/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Live Auction</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">attach_money</i> Live Auction</label></h5>
               <p class="card-text"><label>Live Auction scenario using Storage Channel Metadata</label></p>
-              <a href="./Advanced/3_LiveBidding/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/3_LiveBidding/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
+          
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Audio Recording</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">graphic_eq</i> Audio Recording</label></h5>
               <p class="card-text"><label>Send audio recording through Message Channel</label></p>
-              <a href="./Advanced/5_AudioRecording/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/5_AudioRecording/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>File Sharing</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">article</i> File Sharing</label></h5>
               <p class="card-text"><label>Share files through Message Channel</label></p>
-              <a href="./Advanced/6_FileSharing/" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/6_FileSharing/" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Audio Call</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">call</i> Audio Call</label></h5>
               <p class="card-text"><label>P2P call using Agora RTC for audio call and RTM for call invitation</label></p>
-              <a href="./Advanced/5_AudioRecording/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/5_AudioRecording/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Virtual Gifting</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">redeem</i> Virtual Gifting</label></h5>
               <p class="card-text"><label>Send virtual emojis through Message Channel</label></p>
-              <a href="./Advanced/8_VirtualGifting/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/8_VirtualGifting/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Minigame - TicTacTo</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">sports_esports</i> Minigame - TicTacTo</label></h5>
               <p class="card-text"><label>TicTacToe game using Storage Channel Metadata</label></p>
-              <a href="./Advanced/9_Minigame_TicTacToe/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/9_Minigame_TicTacToe/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
           <div class="card demo-card">
             <div class="card-body">
-              <h5 class="card-title"><label>Minigame - Go</label></h5>
+              <h5 class="card-title"><label><i class="material-icons customIconColor">sports_esports</i> Minigame - Go</label></h5>
               <p class="card-text"><label>Go game using Storage Channel Metadata</label></p>
-              <a href="./Advanced/10_MiniGame_Go/index.html" class="btn btn-primary demo-card-btn"><label 
-                >Try it Now</label></a>
+              <a href="./Advanced/10_MiniGame_Go/index.html" class="customButton customButtonListAdjust">
+                Try it Now</a>
             </div>
           </div>
 
@@ -189,9 +192,9 @@
   </div>
 
   
-  <script src="./assets/jquery-3.4.1.min.js"></script>
-  <script src="./assets/jquery.cookie.js"></script>
-  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./OtherAssets/jquery-3.4.1.min.js"></script>
+  <script src="./OtherAssets/jquery.cookie.js"></script>
+  <script src="./OtherAssets/bootstrap.bundle.min.js"></script>
 
   <script>
     $(document).ready(function () {
