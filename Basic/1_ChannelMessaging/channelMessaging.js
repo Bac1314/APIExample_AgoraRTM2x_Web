@@ -13,24 +13,30 @@ var isLoggedIn = false;
 
 $("#join-form").submit(async function (e) {
     e.preventDefault();
-    $("#join").attr("disabled", true);
-    try {
+    // $("#join").attr("disabled", true);
 
-      options.channel = $("#channel").val();
-      options.uid = $("#uid").val();
-      options.appid = $("#appid").val();
-      options.token = $("#token").val();
+    if(!isLoggedIn) { 
+        try {
+            options.channel = $("#channel").val();
+            options.uid = $("#uid").val();
+            options.appid = $("#appid").val();
+            options.token = $("#token").val();
+      
+            
+            await setupRTM();
+            await loginRTM();
+            await subscribeChannel(options.channel);
+      
+          } catch (error) {
+            console.error(error);
+          } 
+            // finally {
+            //   $("#leave").attr("disabled", false);
+            // }
+    }else { 
+        logoutRTM();
+    }
 
-      await setupRTM();
-      await loginRTM();
-      await subscribeChannel(options.channel);
-
-    } catch (error) {
-      console.error(error);
-    } 
-    // finally {
-    //   $("#leave").attr("disabled", false);
-    // }
   });
 
 const setupRTM = async () => {
@@ -59,12 +65,25 @@ const setupRTM = async () => {
     // Log in the RTM server.
     try {
         const result = await rtm.login({  token: options.token == null ? options.appid : options.token });
-        isLoggedIn = true;
         console.log(result);
+        isLoggedIn = true;
+        $('#login').text('Logout'); 
       } catch (status) {
         console.log(status);
       }
   }
+
+  const logoutRTM = () => {
+    // Log out from the RTM server.
+    try {
+        const result = rtm.logout(); // Call the logout method
+        console.log(result);
+        isLoggedIn = false; // Update the login status
+        $('#login').text('Login'); // Change button text back to 'Login'
+    } catch (status) {
+        console.log(status);
+    }
+};
 
 
   const subscribeChannel = async (channelName) => { 

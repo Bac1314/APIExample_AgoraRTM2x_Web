@@ -48,11 +48,12 @@ body {
   /* position: absolute;
   right: 15px;
   bottom: 15px; */
-  border: 1px solid #ffffff;
+  border: 1.5px solid #ffffff;
   padding: .375rem .75rem;
   border-radius: 25px; 
   color: #FFFFFF;
   background-color: transparent;
+  font-weight: bold;
 }
 
 .customButtonListAdjust { 
