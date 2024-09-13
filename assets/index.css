@@ -11,7 +11,7 @@
 }
 
 .card.demo-card {
-  margin-bottom: 15px;
+  margin-bottom: 30px;
   flex: 0 0 300px;
 }
 
@@ -19,23 +19,21 @@
   position: absolute;
   right: 15px;
   bottom: 15px;
+  border-radius: 30px
 }
 
 .card-text {
   margin-bottom: 50px;
 }
 
-/* .navFix {
-  background: #FFF;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  width: 265px;
-  _position: absolute;
-  top: expression((offsetParent.scrollTop)+0);
-  z-index: 2;
-} */
+.card { 
+  background-color: darkslategray;
+  border-radius: 15px; /* Corner radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+}
 
-label.i18n {
-  margin-bottom: 0;
+body { 
+  background-color: #1E1E1E;
+  color: #FFFFFF;
+  font-family: 'Montserrat'  /*'Roboto Mono', monospace; /* Apply the embedded font */
 }
