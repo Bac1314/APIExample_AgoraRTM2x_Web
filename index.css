@@ -94,6 +94,7 @@ body {
   background-color: transparent;
   width: -webkit-fill-available;
   color: white;
+  border: none;
 }
 
 .customTip { 
@@ -106,6 +107,6 @@ body {
 hr.roundedDivider {
   border-top: 1px solid #bbb;
   border-radius: 5px;
-  /* padding: 0px 30px; */
+  width: -webkit-fill-available;
 }
 

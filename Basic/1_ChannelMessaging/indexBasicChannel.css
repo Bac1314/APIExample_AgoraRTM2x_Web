@@ -16,6 +16,10 @@
     /* background-color: white; */
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    padding: 10px;
+    border: 1.5px solid #ffffff;
+    border-radius: 16px;
 }
 
 .chat-box {
@@ -34,31 +38,51 @@
     word-wrap: break-word;
 }
 
+.sender-name {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
 .local-message {
-    /* background-color: #DCF8C6; */
     margin-right: auto;
     text-align: left;
+    /* border-radius: 16px;
+    background-color: royalblue;
+    padding: 8px 10px;*/
+    color: white; 
+    width: fit-content;
+}
+
+.local-message-design { 
     border-radius: 16px;
+    margin-right: auto;
+    text-align: left;
     background-color: royalblue;
     padding: 8px 10px;
     color: white;
 }
 
 .remote-message {
-    /* background-color: #F0F0F0; */
+    margin-left: auto;
+    text-align: right;
+    /* border-radius: 16px;
+    background-color: mediumseagreen;
+    padding: 8px 10px; */
+    color: white;
+    width: fit-content;
+}
+
+.remote-message-design  {
     margin-left: auto;
     text-align: right;
     border-radius: 16px;
     background-color: mediumseagreen;
     padding: 8px 10px;
     color: white;
+    width: fit-content;
 }
 
-.customInputRectangle { 
-    background-color: transparent;
-    width: -webkit-fill-available;
-    color: white;
-}
 .input-area {
     display: flex;
     padding: 10px;
@@ -66,7 +90,7 @@
     border-radius: 16px;
     /* border-top: 1px solid #e0e0e0;
     /* background-color: #f9f9f9; */
-    /* border-radius: 0 0 10px 10px; */ */
+    /* border-radius: 0 0 10px 10px; */ 
 }
 
 inputMessage {

@@ -119,18 +119,43 @@ const publishMessage = async (message) => {
 
 // Function to add message to chat view (assumes jQuery)
 function addMessageToChat(text, sender) {
-    const messageElement = $("<div></div>").addClass("message");
+    // const messageElement = $("<div></div>").addClass("message");
+
+    // if (sender === options.uid) {
+    //     messageElement.addClass("local-message");
+    // } else {
+    //     messageElement.addClass("remote-message");
+    // }
+
+    // messageElement.text(text);
+
+    // // Append the message to the chat box
+    // $("#chat-box").append(messageElement);
+
+    // // Scroll to the bottom of the chat box
+    // $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+
+
+    // ////
+
+    const messageContainer = $("<div></div>").addClass("message");
+    const senderNameElement = $("<div></div>").addClass("sender-name").text(sender);
+    const messageElement = $("<div></div>").text(text);
+
+    // Append sender's name and message
+    messageContainer.append(senderNameElement);
+    messageContainer.append(messageElement);
 
     if (sender === options.uid) {
-        messageElement.addClass("local-message");
+        messageContainer.addClass("local-message-alignment");
+        messageElement.addClass("local-message-design")
     } else {
-        messageElement.addClass("remote-message");
+        messageContainer.addClass("remote-message-alignment");
+        messageElement.addClass("remote-message-design")
     }
 
-    messageElement.text(text);
-
-    // Append the message to the chat box
-    $("#chat-box").append(messageElement);
+    // Append the message container to the chat box
+    $("#chat-box").append(messageContainer);
 
     // Scroll to the bottom of the chat box
     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
