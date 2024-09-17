@@ -22,10 +22,15 @@ $("#join-form").submit(async function (e) {
             options.appid = $("#appid").val();
             options.token = $("#token").val();
       
-            
-            await setupRTM();
-            await loginRTM();
-            await subscribeChannel(options.channel);
+            // Check if any field is empty
+            if (!options.channel || !options.uid || !options.appid) {
+              alert("Please fill in all the fields: Channel, UID, and AppID.");
+            }
+            else { 
+              await setupRTM();
+              await loginRTM();
+              await subscribeChannel(options.channel);
+            }
       
           } catch (error) {
             console.error(error);
@@ -36,8 +41,7 @@ $("#join-form").submit(async function (e) {
     }else { 
         logoutRTM();
     }
-
-  });
+});
 
 const setupRTM = async () => {
     // Initialize the RTM client.
@@ -53,69 +57,91 @@ const setupRTM = async () => {
     rtm.addEventListener("presence", handleRTMPresenceEvent);
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
 
-    // rtm.addEventListener("message", event => {
-    //     console.log(`Bac's Received message from ${event.publisher}: ${event.message}`);
-    //     showMessage(event.publisher, event.message);
-    //   });
-
   }
 
-  const loginRTM = async () => {
+const loginRTM = async () => {
 
-    // Log in the RTM server.
-    try {
-        const result = await rtm.login({  token: options.token == null ? options.appid : options.token });
-        console.log(result);
-        isLoggedIn = true;
-        $('#login').text('Logout'); 
-      } catch (status) {
-        console.log(status);
-      }
-  }
-
-  const logoutRTM = () => {
-    // Log out from the RTM server.
-    try {
-        const result = rtm.logout(); // Call the logout method
-        console.log(result);
-        isLoggedIn = false; // Update the login status
-        $('#login').text('Login'); // Change button text back to 'Login'
+  // Log in the RTM server.
+  try {
+      const result = await rtm.login({  token: options.token == null ? options.appid : options.token });
+      console.log(result);
+      isLoggedIn = true;
+      $('#login').text('Logout'); 
     } catch (status) {
-        console.log(status);
+      alert("Login RTM failed " + status);
+      console.log(status); 
     }
+}
+
+const logoutRTM = () => {
+  // Log out from the RTM server.
+  try {
+      const result = rtm.logout(); // Call the logout method
+      console.log(result);
+      isLoggedIn = false; // Update the login status
+      $('#login').text('Login'); // Change button text back to 'Login'
+  } catch (status) {
+    alert("Logout RTM failed " + status);
+      console.log(status);
+  }
 };
 
 
-  const subscribeChannel = async (channelName) => { 
-    try {
-        const result = await rtm.subscribe(channelName);
-        console.log(result);
-      } catch (status) {
-        console.log(status);
-      }
-  }
-
-  const publishMessage = async (message) => {
-    const payload = { type: "text", message: message };
-    const publishMessage = JSON.stringify(payload);
-    const publishOptions = { channelType: 'MESSAGE'}
-    try {
-      const result = await rtm.publish(msChannelName, publishMessage, publishOptions);
-      showMessage(userId, publishMessage);
+const subscribeChannel = async (channelName) => { 
+  try {
+      const result = await rtm.subscribe(channelName);
       console.log(result);
     } catch (status) {
+      alert("Subscribe to " + channelName + " failed " + status);
       console.log(status);
     }
-  }
+}
 
-  const showMessage = (user, msg) => {
-    // Get text from the text box.
-    const inputText = textInput.value;
-    const newText = document.createTextNode(user + ": " + msg);
-    const newLine = document.createElement("br");
-    textDisplay.appendChild(newText);
-    textDisplay.appendChild(newLine);
+const publishMessage = async (message) => {
+  const payload = { type: "text", message: message };
+  const publishMessage = JSON.stringify(payload);
+  const publishOptions = { channelType: 'MESSAGE'}
+  try {
+    const result = await rtm.publish(options.channel, publishMessage, publishOptions);
+
+    // Add to local view
+    addMessageToChat(message, "local");
+
+  } catch (status) {
+    console.log(status);
   }
+}
+
+// Function to add message to chat view (assumes jQuery)
+function addMessageToChat(text, sender) {
+    const messageElement = $("<div></div>").addClass("message");
+
+    if (sender === "local") {
+        messageElement.addClass("local-message");
+    } else if (sender === "remote") {
+        messageElement.addClass("remote-message");
+    }
+
+    messageElement.text(text);
+
+    // Append the message to the chat box
+    $("#chat-box").append(messageElement);
+
+    // Scroll to the bottom of the chat box
+    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+}
+
+
+// MARK: BUTTON EVENT LISTENERS
+$("#sendButton").click(function () {
+  const message = $("#messageInput").val().trim();
+
+  if (message !== "") {
+    publishMessage(message); // Publish the message asynchronously
+    $("#messageInput").val(""); // Clear the input field after sending
+  }
+});
+
 
 
 // MARK: EVENT LISTENERS
@@ -160,7 +186,6 @@ function handleRTMLinkStateEvent(event) {
     const timestamp = event.timestamp;
     const isResumed = event.isResumed;
 }
-
 
 
 //   window.onload = setupRTM;

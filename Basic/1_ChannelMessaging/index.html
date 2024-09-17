@@ -14,6 +14,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="../../OtherAssets/bootstrap.min.css">
   <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="/index.css">
 
 
   <title>Channel Messaging</title>
@@ -81,9 +82,15 @@
 
         <!-- MAIN CONTENT -->
         <br><br>
-        <div id="maincontent">
-          <h3>Messages</h3>
-        </div>
+        <div class="chat-container">
+          <div id="chat-box" class="chat-box">
+              <!-- Chat messages will be dynamically added here -->
+          </div>
+          <div class="input-area">
+              <input type="text" id="messageInput" placeholder="Type a message...">
+              <button id="sendButton">Send</button>
+          </div>
+      </div>
 
 
     

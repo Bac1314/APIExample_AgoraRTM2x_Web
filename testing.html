@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Alert</title>
+    <script>
+        function showAlert() {
+            // Get the value entered by the user
+            var userInput = document.getElementById("userInput").value;
+            
+            // Create a dynamic alert message
+            var alertMessage = "You entered: " + userInput;
+            
+            // Display the dynamic alert
+            alert(alertMessage);
+        }
+    </script>
+</head>
+<body>
+    <h1>Dynamic Alert Example</h1>
+    <input type="text" id="userInput" placeholder="Enter something">
+    <button onclick="showAlert()">Show Alert</button>
+</body>
+</html>
