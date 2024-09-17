@@ -71,6 +71,11 @@ body {
   /* -webkit-background-clip: text; For Safari */
 }
 
+.fillBGAccent { 
+  background-color: royalblue;
+}
+
+
 .customIconColor { 
   color: deepskyblue;  /* Make the border transparent */
 }
@@ -80,6 +85,14 @@ body {
   border-radius: 20px;
   background-color: transparent;
   padding: 8px 10px;
+  color: white;
+  /* width: -webkit-fill-available; */
+
+}
+
+.customInputRectangle { 
+  background-color: transparent;
+  width: -webkit-fill-available;
   color: white;
 }
 
@@ -95,3 +108,4 @@ hr.roundedDivider {
   border-radius: 5px;
   /* padding: 0px 30px; */
 }
+

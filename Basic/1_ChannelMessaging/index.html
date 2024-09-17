@@ -14,7 +14,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="../../OtherAssets/bootstrap.min.css">
   <link rel="stylesheet" href="../../index.css">
-  <link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="indexBasicChannel.css">
 
 
   <title>Channel Messaging</title>
@@ -54,7 +54,7 @@
           <div class="row join-info-group">
             <div class="col-sm sso-hidden">
               <p class="join-info-text">AppID</p>
-              <input class="customInputStyle" id="appid" type="text" placeholder="Enter appid">
+              <input class="customInputStyle" id="appid" type="text" placeholder="Enter appid" required>
             </div>
             <div class="col-sm sso-hidden">
               <p class="join-info-text">Token</p>
@@ -66,7 +66,7 @@
             </div>
             <div class="col-sm">
               <p class="join-info-text">User ID</p>
-              <input class="customInputStyle" id="uid" type="text" placeholder="Enter the user ID">
+              <input class="customInputStyle" id="uid" type="text" placeholder="Enter the user ID" required>
             </div>
           </div>
     
@@ -82,13 +82,14 @@
 
         <!-- MAIN CONTENT -->
         <br><br>
-        <div class="chat-container">
+        <div id="chat-container" class="chat-container" style="display: none;">
+          <h3>Messages</h3>
           <div id="chat-box" class="chat-box">
               <!-- Chat messages will be dynamically added here -->
           </div>
           <div class="input-area">
-              <input type="text" id="messageInput" placeholder="Type a message...">
-              <button id="sendButton">Send</button>
+              <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+              <button id="sendButton" class="customButton fillBGAccent" >Send</button>
           </div>
       </div>
 

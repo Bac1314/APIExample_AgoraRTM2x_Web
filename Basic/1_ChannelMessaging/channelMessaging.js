@@ -27,12 +27,15 @@ $("#join-form").submit(async function (e) {
               alert("Please fill in all the fields: Channel, UID, and AppID.");
             }
             else { 
+              $('#login').text('Logging in'); 
+
               await setupRTM();
               await loginRTM();
               await subscribeChannel(options.channel);
             }
       
           } catch (error) {
+            $('#login').text('Login'); 
             console.error(error);
           } 
             // finally {
@@ -67,6 +70,7 @@ const loginRTM = async () => {
       console.log(result);
       isLoggedIn = true;
       $('#login').text('Logout'); 
+      $("#chat-container").show(); 
     } catch (status) {
       alert("Login RTM failed " + status);
       console.log(status); 
@@ -80,6 +84,7 @@ const logoutRTM = () => {
       console.log(result);
       isLoggedIn = false; // Update the login status
       $('#login').text('Login'); // Change button text back to 'Login'
+      $("#chat-container").hide(); // Show if input is not empty
   } catch (status) {
     alert("Logout RTM failed " + status);
       console.log(status);
@@ -98,14 +103,14 @@ const subscribeChannel = async (channelName) => {
 }
 
 const publishMessage = async (message) => {
-  const payload = { type: "text", message: message };
-  const publishMessage = JSON.stringify(payload);
+  // const payload = { type: "text", message: message };
+  // const publishMessage = JSON.stringify(payload);
   const publishOptions = { channelType: 'MESSAGE'}
   try {
-    const result = await rtm.publish(options.channel, publishMessage, publishOptions);
+    const result = await rtm.publish(options.channel, message, publishOptions);
 
     // Add to local view
-    addMessageToChat(message, "local");
+    // addMessageToChat(message, "local");
 
   } catch (status) {
     console.log(status);
@@ -116,9 +121,9 @@ const publishMessage = async (message) => {
 function addMessageToChat(text, sender) {
     const messageElement = $("<div></div>").addClass("message");
 
-    if (sender === "local") {
+    if (sender === options.uid) {
         messageElement.addClass("local-message");
-    } else if (sender === "remote") {
+    } else {
         messageElement.addClass("remote-message");
     }
 
@@ -158,6 +163,10 @@ function handleRTMMessageEvent(event) {
 
     // Handle the message here (e.g., log it, update UI, etc.)
     console.log(`Bac's Received message from ${publisher}: ${message}`);
+
+    addMessageToChat(message, publisher);
+
+    
 }
 
 
