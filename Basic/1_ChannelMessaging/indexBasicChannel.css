@@ -9,8 +9,7 @@
 } */
 
 .chat-container {
-    /* width: 400px;
-    max-height: 600px; */
+    height: 600px; /* Set a maximum height */
     display: flex;
     flex-direction: column;
     /* background-color: white; */
@@ -23,10 +22,10 @@
 }
 
 .chat-box {
-    flex: 1;
+    flex: 1; /* Allow the chat box to grow and shrink */
     padding: 10px;
-    overflow-y: auto;
-    /* border-bottom: 1px solid #e0e0e0; */
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 500px; /* Set a maximum height for the chat box */
 }
 
 .message {
@@ -44,7 +43,7 @@
     margin-bottom: 5px;
 }
 
-.local-message {
+.local-message-alignment {
     margin-right: auto;
     text-align: left;
     /* border-radius: 16px;
@@ -61,9 +60,11 @@
     background-color: royalblue;
     padding: 8px 10px;
     color: white;
+    width: fit-content;
+
 }
 
-.remote-message {
+.remote-message-alignment {
     margin-left: auto;
     text-align: right;
     /* border-radius: 16px;
