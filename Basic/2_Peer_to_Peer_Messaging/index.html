@@ -1,9 +1,119 @@
 <!doctype html>
 <html>
   <head>
-    <title>This is the title of the webpage!</title>
+      <!--font-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <!--Icons-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="../../OtherAssets/bootstrap.min.css">
+  <link rel="stylesheet" href="../../index.css">
+  <link rel="stylesheet" href="indexP2P.css">
+
+
+  <title>P2P Messaging</title>
   </head>
   <body>
-    <p>This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
+    <body>
+      <div class="container-fluid banner">
+        <p class="banner-text"> <a class="material-icons customIconColor" href="../../index.html">home</a> P2P Messaging</p>
+        <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
+          class="Header-link " href="https://github.com/Bac1314/APIExample_AgoraRTM2x_Web">
+          <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
+            aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+            </path>
+          </svg>
+        </a>
+      </div>
+    
+      <!-- <div id="success-alert" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Congratulations!</strong><span> You can invite others to watch your live by click </span><a href=""
+          target="_blank">here</a>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div> -->
+    
+      <div class="container">
+
+        <h2><i class="material-icons customIconColor">message</i> P2P Messaging </h2>
+
+        <hr class="roundedDivider"> <br>
+
+        
+        <h3>Setup</h3>
+        <form id="join-form" name="join-form">
+          <div class="row join-info-group">
+            <div class="col-sm sso-hidden">
+              <p class="join-info-text">AppID</p>
+              <input class="customInputStyle" id="appid" type="text" placeholder="Enter appid" required>
+            </div>
+            <div class="col-sm sso-hidden">
+              <p class="join-info-text">Token</p>
+              <input class="customInputStyle" id="token" type="text" placeholder="Enter RTM token">
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">User ID</p>
+              <input class="customInputStyle" id="uid" type="text" placeholder="Enter your user ID" required>
+            </div>
+
+            <div class="col-sm">
+              <p class="join-info-text">Friend User ID</p>
+              <input class="customInputStyle" id="frienduid" type="text" placeholder="Enter friend user ID" required>
+            </div>
+          </div>
+    
+          <p class="customTip">Note: Leave token input empty if app certificate is NOT enabled</p>
+    
+        </form>
+
+        <!-- put it outside of form to prevent ENTER button to login/logout -->
+        <div class="button-group">
+          <button id="login" type="submit" class="customButton">Login</button>
+        </div>
+
+        <!-- <br><hr class="roundedDivider"> <br> -->
+
+        <!-- MAIN CONTENT -->
+        <br><br>
+        <div id="chat-container" class="chat-container" style="display: none;">
+          <h3>Messages</h3>
+          <label id="userCount">#0</label>
+
+          <hr class="roundedDivider">
+          
+          <div id="chat-box" class="chat-box">
+              <!-- Chat messages will be dynamically added here -->
+          </div>
+          <div class="input-area">
+              <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+              <button id="sendButton" class="customButton fillBGAccent" >Send</button>
+          </div>
+      </div>
+
+
+    
+      </div>
+
+    <!-- Design scripts -->
+    <script src="../../OtherAssets/jquery-3.4.1.min.js"></script>
+    <script src="../../OtherAssets/jquery.cookie.js"></script>
+    <script src="../../OtherAssets/bootstrap.bundle.min.js"></script>
+
+    <!-- SDK and main scripts -->
+    <script src="../../OtherAssets/agora-rtm-2.2.0.min.js"></script>
+    <script src="peertoPeer.js"></script>
+    <script src="../../Models/RTMUser.js"></script> <!-- This should contain the User class -->
+
+
   </body>
+
 </html>

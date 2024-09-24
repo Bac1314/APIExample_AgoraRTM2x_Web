@@ -78,6 +78,7 @@ body {
 
 .customIconColor { 
   color: deepskyblue;  /* Make the border transparent */
+  font-size: x-large;
 }
 
 .customInputStyle { 

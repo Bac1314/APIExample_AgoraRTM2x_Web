@@ -22,9 +22,9 @@
   <body>
     <body>
       <div class="container-fluid banner">
-        <p class="banner-text">Channel Messaging</p>
+        <p class="banner-text"> <a class="material-icons customIconColor" href="../../index.html">home</a> Channel Messaging</p>
         <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
-          class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
+          class="Header-link " href="https://github.com/Bac1314/APIExample_AgoraRTM2x_Web">
           <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
             aria-hidden="true">
             <path fill-rule="evenodd"
@@ -61,22 +61,24 @@
               <input class="customInputStyle" id="token" type="text" placeholder="Enter RTM token">
             </div>
             <div class="col-sm">
-              <p class="join-info-text">Channel</p>
-              <input class="customInputStyle" id="channel" type="text" placeholder="Enter channel name" required>
-            </div>
-            <div class="col-sm">
               <p class="join-info-text">User ID</p>
               <input class="customInputStyle" id="uid" type="text" placeholder="Enter the user ID" required>
+            </div>
+
+            <div class="col-sm">
+              <p class="join-info-text">Channel</p>
+              <input class="customInputStyle" id="channel" type="text" placeholder="Enter channel name" required>
             </div>
           </div>
     
           <p class="customTip">Note: Leave token input empty if app certificate is NOT enabled</p>
-
-          <div class="button-group">
-            <button id="login" type="submit" class="customButton">Login</button>
-          </div>
     
         </form>
+
+        <!-- put it outside of form to prevent ENTER button to login/logout -->
+        <div class="button-group">
+          <button id="login" type="submit" class="customButton">Login</button>
+        </div>
 
         <!-- <br><hr class="roundedDivider"> <br> -->
 
@@ -84,6 +86,8 @@
         <br><br>
         <div id="chat-container" class="chat-container" style="display: none;">
           <h3>Messages</h3>
+          <h5 id="channelnamedisplay"></h5>
+
           <label id="userCount">#0</label>
 
           <hr class="roundedDivider">

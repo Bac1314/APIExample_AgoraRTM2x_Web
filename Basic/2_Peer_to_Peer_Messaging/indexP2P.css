@@ -1,0 +1,120 @@
+/* body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+} */
+
+.chat-container {
+    height: 600px; /* Set a maximum height */
+    display: flex;
+    flex-direction: column;
+    /* background-color: white; */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    padding: 10px;
+    border: 1.5px solid #ffffff;
+    border-radius: 16px;
+}
+
+.chat-box {
+    flex: 1; /* Allow the chat box to grow and shrink */
+    padding: 10px;
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 500px; /* Set a maximum height for the chat box */
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.sender-name {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.local-message-alignment {
+    margin-right: auto;
+    text-align: left;
+    /* border-radius: 16px;
+    background-color: royalblue;
+    padding: 8px 10px;*/
+    color: white; 
+    width: fit-content;
+}
+
+.local-message-design { 
+    border-radius: 16px;
+    margin-right: auto;
+    text-align: left;
+    background-color: royalblue;
+    padding: 8px 10px;
+    color: white;
+    width: fit-content;
+
+}
+
+.remote-message-alignment {
+    margin-left: auto;
+    text-align: right;
+    /* border-radius: 16px;
+    background-color: mediumseagreen;
+    padding: 8px 10px; */
+    color: white;
+    width: fit-content;
+}
+
+.remote-message-design  {
+    margin-left: auto;
+    text-align: right;
+    border-radius: 16px;
+    background-color: mediumseagreen;
+    padding: 8px 10px;
+    color: white;
+    width: fit-content;
+}
+
+.input-area {
+    display: flex;
+    padding: 10px;
+    border: 1.5px solid #ffffff;
+    border-radius: 16px;
+    /* border-top: 1px solid #e0e0e0;
+    /* background-color: #f9f9f9; */
+    /* border-radius: 0 0 10px 10px; */ 
+}
+
+inputMessage {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    margin-right: 10px;
+    background: transparent;
+}
+
+/*
+
+buttonMessage {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+buttonMessage:hover {
+    background-color: #45a049;
+} */

@@ -6,7 +6,8 @@ var options = {
     appid: null,
     channel: null,
     uid: null,
-    token: null
+    token: null,
+    frienduid: null
 };
 
 var isLoggedIn = false;
@@ -19,23 +20,24 @@ $("#login").click(async function (e) {
 
     if(!isLoggedIn) { 
         try {
-            options.channel = $("#channel").val();
+            options.channel = null 
+            options.frienduid = $("#frienduid").val();
             options.uid = $("#uid").val();
             options.appid = $("#appid").val();
             options.token = $("#token").val();
       
             // Check if any field is empty
-            if (!options.channel || !options.uid || !options.appid) {
-              alert("Please fill in all the fields: Channel, UID, and AppID.");
+            if (!options.frienduid || !options.uid || !options.appid) {
+              alert("Please fill in all the fields: friend UID, UID, and AppID.");
             }
             else { 
               $('#login').text('Logging in'); 
 
               await setupRTM();
               await loginRTM();
-              await subscribeChannel(options.channel);
+            //   await subscribeChannel(options.channel);
 
-              $('#channelnamedisplay').text(options.channel); // show friend uid in top of chatbox
+            $('#userCount').text(options.frienduid); // show friend uid in top of chatbox
 
             }
       
@@ -56,13 +58,13 @@ const setupRTM = async () => {
     try {
       rtm = new RTM(options.appid, options.uid);
     } catch (status) {
-      alert("Setup RTM failed " + status);
-      console.log(status);
+        alert("Setup RTM failed " + status);
+        console.log(status);
     }
 
     // Setup Event Listeners
     rtm.addEventListener("message", handleRTMMessageEvent);
-    rtm.addEventListener("presence", handleRTMPresenceEvent);
+    // rtm.addEventListener("presence", handleRTMPresenceEvent);
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
 
   }
@@ -97,35 +99,25 @@ const logoutRTM = () => {
 };
 
 
-const subscribeChannel = async (channelName) => { 
-  try {
-      const result = await rtm.subscribe(channelName);
-      console.log(result);
-    } catch (status) {
-      alert("Subscribe to " + channelName + " failed " + status);
-      console.log(status);
-    }
-}
-
-const unSubscribeChannel = async (channelName) => { 
-  try {
-      const result = await rtm.unSubscribeChannel(channelName);
-      console.log(result);
-    } catch (status) {
-      // alert("UnSubscribe to " + channelName + " failed " + status);
-      console.log(status);
-    }
-}
+// const subscribeChannel = async (channelName) => { 
+//   try {
+//       const result = await rtm.subscribe(channelName);
+//       console.log(result);
+//     } catch (status) {
+//       alert("Subscribe to " + channelName + " failed " + status);
+//       console.log(status);
+//     }
+// }
 
 const publishMessage = async (message) => {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
-  const publishOptions = { channelType: 'MESSAGE'}
+  const publishOptions = { channelType: 'USER'}
   try {
-    const result = await rtm.publish(options.channel, message, publishOptions);
+    const result = await rtm.publish(options.frienduid, message, publishOptions);
 
     // Add to local view
-    // addMessageToChat(message, "local");
+    addMessageToChat(message, options.uid); // P2P requires you to do it here, instead of from the event callback
 
   } catch (status) {
     alert("Publish Message failed " + status);
@@ -171,20 +163,9 @@ $("#sendButton").click(function () {
 });
 
 // Event listener for input changes
-$('#channel').on('blur', async function() {
-  if(isLoggedIn) { 
-    try {
-      await unSubscribeChannel(options.channel);
-      options.channel = $(this).val(); // Update the local variable
-      await subscribeChannel(options.channel);
-      $('#channelnamedisplay').text(options.channel); // show friend uid in top of chatbox
-  
-      // Check if any field is empty
-    } catch (error) {
-      console.error(error);
-    } 
-
-  }
+$('#frienduid').on('input', function() {
+    options.frienduid = $(this).val(); // Update the local variable
+    $('#userCount').text(options.frienduid); // show friend uid in top of chatbox
 
 });
 
@@ -206,72 +187,70 @@ function handleRTMMessageEvent(event) {
     console.log(`Bac's Received message from ${publisher}: ${message}`);
 
     addMessageToChat(message, publisher);
-
-    
 }
 
 
-function handleRTMPresenceEvent(event) {
-    const action = event.eventType; // Which action it is ,should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
-    const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
-    const channelName = event.channelName; // Which channel does this event come from
-    const publisher = event.publisher; // Who trigger this event
-    const states = event.stateChanged; // User state payload, only for stateChanged event
-    const interval = event.interval; // Interval payload, only for interval event
-    const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
-    const timestamp = event.timestamp; // Event timestamp
+// function handleRTMPresenceEvent(event) {
+//     const action = event.eventType; // Which action it is ,should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
+//     const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
+//     const channelName = event.channelName; // Which channel does this event come from
+//     const publisher = event.publisher; // Who trigger this event
+//     const states = event.stateChanged; // User state payload, only for stateChanged event
+//     const interval = event.interval; // Interval payload, only for interval event
+//     const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
+//     const timestamp = event.timestamp; // Event timestamp
 
-    console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
+//     console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
 
-    const user = new RTMUser(channelType, channelName, publisher, states);
+//     const user = new RTMUser(channelType, channelName, publisher, states);
 
-    switch (action) {
-        case 'REMOTE_JOIN':
-            // Add user to the array
-            users.push(user);
-            break;
-        case 'REMOTE_LEAVE':
-            // Remove user from the array (assuming publisher is unique)
-            const index = users.findIndex(u => u.publisher === publisher);
-            if (index !== -1) {
-                users.splice(index, 1);
-            }
-            break;
-        case 'REMOTE_STATE_CHANGED':
-            // Update user state if they already exist
-            const existingUser = users.find(u => u.publisher === publisher);
-            if (existingUser) {
-                existingUser.states = stateChanged; // Update the state
-            }
-            break;
+//     switch (action) {
+//         case 'REMOTE_JOIN':
+//             // Add user to the array
+//             users.push(user);
+//             break;
+//         case 'REMOTE_LEAVE':
+//             // Remove user from the array (assuming publisher is unique)
+//             const index = users.findIndex(u => u.publisher === publisher);
+//             if (index !== -1) {
+//                 users.splice(index, 1);
+//             }
+//             break;
+//         case 'REMOTE_STATE_CHANGED':
+//             // Update user state if they already exist
+//             const existingUser = users.find(u => u.publisher === publisher);
+//             if (existingUser) {
+//                 existingUser.states = stateChanged; // Update the state
+//             }
+//             break;
 
-        case 'SNAPSHOT':
-            // Clear the current users array
-            users.length = 0; // Reset the array
+//         case 'SNAPSHOT':
+//             // Clear the current users array
+//             users.length = 0; // Reset the array
 
-            // Populate the users array from the snapshot
-            snapshot.forEach(userSnapshot => {
+//             // Populate the users array from the snapshot
+//             snapshot.forEach(userSnapshot => {
 
-                console.log("Bac's usersnapshot " + userSnapshot);
-                const user = new RTMUser(
-                    channelType,
-                    channelName,
-                    userSnapshot.userId,
-                    userSnapshot.states
-                );
-                users.push(user);
-            });
-            break;
+//                 console.log("Bac's usersnapshot " + userSnapshot);
+//                 const user = new RTMUser(
+//                     channelType,
+//                     channelName,
+//                     userSnapshot.userId,
+//                     userSnapshot.states
+//                 );
+//                 users.push(user);
+//             });
+//             break;
 
-        // Handle other actions as needed
-        default:
-            console.log(`Unhandled action: ${action}`);
-            break;
-    }
+//         // Handle other actions as needed
+//         default:
+//             console.log(`Unhandled action: ${action}`);
+//             break;
+//     }
 
-    $('#userCount').text('#'+users.length + " users"); // Update the total users
+//     $('#userCount').text('#'+users.length + " users"); // Update the total users
 
-}
+// }
 
 function handleRTMLinkStateEvent(event) { 
     const currentState = event.currentState;
