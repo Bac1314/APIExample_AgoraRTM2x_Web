@@ -84,25 +84,6 @@
     width: fit-content;
 }
 
-.input-area {
-    display: flex;
-    padding: 10px;
-    border: 1.5px solid #ffffff;
-    border-radius: 16px;
-    /* border-top: 1px solid #e0e0e0;
-    /* background-color: #f9f9f9; */
-    /* border-radius: 0 0 10px 10px; */ 
-}
-
-inputMessage {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    margin-right: 10px;
-    background: transparent;
-}
 
 /*
 

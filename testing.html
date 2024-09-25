@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../OtherAssets/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="./Basic/1_ChannelMessaging/indexBasicChannel.css">
     <title>Dynamic Alert</title>
+
+
     <script>
         function showAlert() {
             // Get the value entered by the user
@@ -22,5 +27,66 @@
     <h1>Dynamic Alert Example</h1>
     <input type="text" id="userInput" placeholder="Enter something">
     <button onclick="showAlert()">Show Alert</button>
+
+
+
+    <div class="listofchats"> 
+
+        <div id="chat-container" class="chat-container">
+            <h3>Messages</h3>
+            <h5 id="channelnamedisplay"></h5>
+    
+            <label id="userCount">#0</label>
+    
+            <hr class="roundedDivider">
+            
+            <div id="chat-box" class="chat-box">
+                <!-- Chat messages will be dynamically added here -->
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+                <button id="sendButton" class="customButton fillBGAccent" >Send</button>
+            </div>
+    
+        </div>
+
+        <div id="chat-container" class="chat-container">
+            <h3>Messages</h3>
+            <h5 id="channelnamedisplay"></h5>
+    
+            <label id="userCount">#0</label>
+    
+            <hr class="roundedDivider">
+            
+            <div id="chat-box" class="chat-box">
+                <!-- Chat messages will be dynamically added here -->
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+                <button id="sendButton" class="customButton fillBGAccent" >Send</button>
+            </div>
+    
+        </div>
+
+        <div id="chat-container" class="chat-container">
+            <h3>Messages</h3>
+            <h5 id="channelnamedisplay"></h5>
+    
+            <label id="userCount">#0</label>
+    
+            <hr class="roundedDivider">
+            
+            <div id="chat-box" class="chat-box">
+                <!-- Chat messages will be dynamically added here -->
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+                <button id="sendButton" class="customButton fillBGAccent" >Send</button>
+            </div>
+    
+        </div>
+        
+    </div>
+
 </body>
 </html>

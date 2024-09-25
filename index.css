@@ -91,11 +91,27 @@ body {
 
 }
 
+.customInputStyle:disabled {
+  background-color: darkgray; /* Light gray background */
+  cursor: not-allowed; /* Change cursor to indicate disabled state */
+}
+
 .customInputRectangle { 
   background-color: transparent;
   width: -webkit-fill-available;
   color: white;
   border: none;
+  margin: 0rem 1rem;
+}
+
+.input-area {
+  display: flex;
+  padding: 10px;
+  border: 1.5px solid #ffffff;
+  border-radius: 32px;
+  /* border-top: 1px solid #e0e0e0;
+  /* background-color: #f9f9f9; */
+  /* border-radius: 0 0 10px 10px; */ 
 }
 
 .customTip { 
@@ -111,3 +127,25 @@ hr.roundedDivider {
   width: -webkit-fill-available;
 }
 
+.listofchats { 
+  display: grid;
+  grid-template-rows: 100px;
+  grid-auto-rows: 100px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+
+  /* height: 100%;
+  margin: 50px 25px;
+  padding: 5px 100px;
+  display: grid;
+  grid-gap: 20px;
+  grid-auto-rows: 100px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); */
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .listofchats{
+      grid-template-columns: 1fr; /* 1 item per row */
+  }
+}
