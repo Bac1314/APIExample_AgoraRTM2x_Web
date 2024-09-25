@@ -202,7 +202,7 @@ function handleRTMMessageEvent(event) {
 
 //     console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
 
-//     const user = new RTMUser(channelType, channelName, publisher, states);
+//     const user = new CustomRTMUser(channelType, channelName, publisher, states);
 
 //     switch (action) {
 //         case 'REMOTE_JOIN':
@@ -232,7 +232,7 @@ function handleRTMMessageEvent(event) {
 //             snapshot.forEach(userSnapshot => {
 
 //                 console.log("Bac's usersnapshot " + userSnapshot);
-//                 const user = new RTMUser(
+//                 const user = new CustomRTMUser(
 //                     channelType,
 //                     channelName,
 //                     userSnapshot.userId,

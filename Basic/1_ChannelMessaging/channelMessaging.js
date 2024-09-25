@@ -35,6 +35,9 @@ $("#login").click(async function (e) {
 
               await setupRTM();
               await loginRTM();
+
+              $('#login').text('Logout'); 
+              $("#sectionSubscribe").show(); 
             }
       
           } catch (error) {
@@ -46,6 +49,10 @@ $("#login").click(async function (e) {
             // }
     }else { 
         logoutRTM();
+
+        $('#login').text('Login'); // Change button text back to 'Login'
+        $("#sectionSubscribe").hide(); // 
+        $("#sectionMessages").hide(); // 
     }
 });
 
@@ -72,8 +79,6 @@ const loginRTM = async () => {
       const result = await rtm.login({  token: options.token == null ? options.appid : options.token });
       console.log(result);
       isLoggedIn = true;
-      $('#login').text('Logout'); 
-      $("#chat-container").show(); 
     } catch (status) {
       alert("Login RTM failed " + status);
       console.log(status); 
@@ -86,8 +91,6 @@ const logoutRTM = () => {
       const result = rtm.logout(); // Call the logout method
       console.log(result);
       isLoggedIn = false; // Update the login status
-      $('#login').text('Login'); // Change button text back to 'Login'
-      $("#chat-container").hide(); // Show if input is not empty
 
       channels.length = 0 // Reset the array
       selectedChannel = "Selected Channel"; 
@@ -214,12 +217,12 @@ $("#subscribeBtn").click(async function() {
     console.log("Subscribing channelName " + channelName);
 
     if (channelName) { 
-      // Subscribe to channel
-      await subscribeChannel(channelName);
-
-      // Create custom channel
+      // Create custom channel, and push it to the list BEFORE subscribe, because Snapshot triggers before you push it to channels
       const customChannel = new CustomRTMChannel(channelName, [], []);
       channels.push(customChannel);
+
+      // Subscribe to channel
+      await subscribeChannel(channelName);
 
       // Clear the input field after subscribing
       $("#channelInput").val(""); 
@@ -231,8 +234,20 @@ $("#subscribeBtn").click(async function() {
       // renderChannelsList();
     }
 
+    if (channels.length > 0) { 
+      $("#sectionMessages").show(); // 
+    }
+
   } catch (error) {
     console.error(error);
+
+    let channelName = $("#channelInput").val();
+
+    // If there are errors, remove the channels added above
+    const channelIndex = channels.findIndex(customChannel => customChannel.channelName === channelName);
+    if (channelIndex !== -1) {
+      channelIndex.splice(channelIndex, 1);
+    }
   } 
   
 });
@@ -319,6 +334,8 @@ function handleRTMPresenceEvent(event) {
         case 'SNAPSHOT':
             // // Clear the current users array
             // users.length = 0; // Reset the array
+
+            console.log("Snapshot " + channelName + " length " +  snapshot.length);
 
             // Populate the users array from the snapshot
             if (channelFound) { 
