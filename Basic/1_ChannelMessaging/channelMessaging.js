@@ -13,7 +13,7 @@ var isLoggedIn = false;
 
 var channels = []
 
-var users = []
+var selectedChannel = "Selected Channel";
 
 $("#login").click(async function (e) {
     e.preventDefault();
@@ -89,6 +89,8 @@ const logoutRTM = () => {
       $('#login').text('Login'); // Change button text back to 'Login'
       $("#chat-container").hide(); // Show if input is not empty
 
+      channels.length = 0 // Reset the array
+      selectedChannel = "Selected Channel"; 
   } catch (status) {
     alert("Logout RTM failed " + status);
       console.log(status);
@@ -104,8 +106,6 @@ const subscribeChannel = async (channelName) => {
       alert("Subscribe to " + channelName + " failed " + status);
       console.log(status);
     }
-
-    renderChannelsList(); // Update the display
 }
 
 const unSubscribeChannel = async (channelName) => { 
@@ -118,12 +118,12 @@ const unSubscribeChannel = async (channelName) => {
     }
 }
 
-const publishMessage = async (message, channelName) => {
+const publishMessage = async (message) => {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
   const publishOptions = { channelType: 'MESSAGE'}
   try {
-    const result = await rtm.publish(channelName, message, publishOptions);
+    const result = await rtm.publish(selectedChannel, message, publishOptions);
 
     // Add to local view
     // addMessageToChat(message, "local");
@@ -134,34 +134,7 @@ const publishMessage = async (message, channelName) => {
   }
 }
 
-// Function to add message to chat view (assumes jQuery)
-function addMessageToChat(text, sender, channel) {
-
-    const messageContainer = $("<div></div>").addClass("message");
-    const channelNameElement = $("<div></div>").text(channel);
-    const senderNameElement = $("<div></div>").addClass("sender-name").text(sender);
-    const messageElement = $("<div></div>").text(text);
-
-    // Append sender's name and message
-    messageContainer.append(senderNameElement);
-    messageContainer.append(channelNameElement);
-    messageContainer.append(messageElement);
-
-    if (sender === options.uid) {
-        messageContainer.addClass("local-message-alignment");
-        messageElement.addClass("local-message-design")
-    } else {
-        messageContainer.addClass("remote-message-alignment");
-        messageElement.addClass("remote-message-design")
-    }
-
-    // Append the message container to the chat box
-    $("#chat-box").append(messageContainer);
-
-    // Scroll to the bottom of the chat box
-    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-}
-
+// Render the channel list
 function renderChannelsList() {
   const channelListElement = document.getElementById('channel-list');
   channelListElement.innerHTML = ''; // Clear previous content
@@ -169,9 +142,59 @@ function renderChannelsList() {
   channels.forEach(channel => {
       const channelItem = document.createElement('div');
       channelItem.className = 'channel-item';
-      channelItem.textContent = `${channel.channelName} #${channel.users.length} users`;
+
+      // Check if this channel is the selected one
+      if (channel.channelName === selectedChannel) {
+          channelItem.classList.add('selected-channel'); // Use classList.add
+      } else {
+          channelItem.classList.remove('selected-channel'); // Use classList.remove
+      }
+      
+      channelItem.textContent = `${channel.channelName} #${channel.users.length}`;
+      channelItem.onclick = function() {
+        loadChannelMessages(channel.channelName);
+      }; // on click listener
       channelListElement.appendChild(channelItem);
   });
+}
+
+// Load the target channel messages
+function loadChannelMessages(targetChannel) {
+
+  selectedChannel = targetChannel;
+  $('#selectedChannel').val(targetChannel); 
+
+  // Rerender channel list to show selected channel
+  renderChannelsList();
+  
+  $('#chat-box').empty(); // Clear previous messages
+
+  const channelFound = channels.find(channel => channel.channelName === targetChannel);
+
+  channelFound.messages.forEach(customMessage => {
+    const messageContainer = $("<div></div>").addClass("message");
+    const senderNameElement = $("<div></div>").addClass("sender-name").text(customMessage.publisher);
+    const messageElement = $("<div></div>").text(customMessage.message);
+  
+    // Append sender's name and message
+    messageContainer.append(senderNameElement);
+    messageContainer.append(messageElement);
+  
+    if (customMessage.publisher === options.uid) {
+        messageContainer.addClass("local-message-alignment");
+        messageElement.addClass("local-message-design")
+    } else {
+        messageContainer.addClass("remote-message-alignment");
+        messageElement.addClass("remote-message-design")
+    }
+  
+    // Append the message container to the chat box
+    $("#chat-box").append(messageContainer);
+  
+    // Scroll to the bottom of the chat box
+    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+  });
+
 }
 
 // MARK: BUTTON EVENT LISTENERS
@@ -187,7 +210,9 @@ $("#sendButton").click(function () {
 $("#subscribeBtn").click(async function() {
   try { 
     let channelName = $("#channelInput").val();
-    console.log("Subscribe channelName " + channelName);
+
+    console.log("Subscribing channelName " + channelName);
+
     if (channelName) { 
       // Subscribe to channel
       await subscribeChannel(channelName);
@@ -198,6 +223,12 @@ $("#subscribeBtn").click(async function() {
 
       // Clear the input field after subscribing
       $("#channelInput").val(""); 
+
+      // Change target channel name
+      $('#selectedChannel').text(channelName); 
+
+      loadChannelMessages(channelName);
+      // renderChannelsList();
     }
 
   } catch (error) {
@@ -205,23 +236,6 @@ $("#subscribeBtn").click(async function() {
   } 
   
 });
-
-// // Event listener for input changes
-// $('#channel').on('blur', async function() {
-//   if(isLoggedIn) { 
-//     try {
-//       await unSubscribeChannel(options.channel);
-//       options.channel = $(this).val(); // Update the local variable
-//       await subscribeChannel(options.channel);
-//       $('#channelnamedisplay').text(options.channel); // show friend uid in top of chatbox
-  
-//       // Check if any field is empty
-//     } catch (error) {
-//       console.error(error);
-//     } 
-//   }
-// });
-
 
 
 // MARK: EVENT LISTENERS
@@ -239,7 +253,14 @@ function handleRTMMessageEvent(event) {
     // Handle the message here (e.g., log it, update UI, etc.)
     console.log(`Bac's Received message from ${publisher}: ${message}`);
 
-    addMessageToChat(message, publisher);
+    const channelFound = channels.find(channel => channel.channelName === channelName);
+
+    if (channelFound) { 
+      const customMessage = new CustomRTMMessage(message, publisher);
+      channelFound.messages.push(customMessage);
+
+      loadChannelMessages(channelName);
+    }
 
     
 }

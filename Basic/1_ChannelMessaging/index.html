@@ -20,7 +20,6 @@
   <title>Channel Messaging</title>
   </head>
   <body>
-    <body>
       <div class="container-fluid banner">
         <p class="banner-text"> <a class="material-icons customIconColor" href="../../index.html">home</a> Channel Messaging</p>
         <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
@@ -46,7 +45,7 @@
 
         <h2><i class="material-icons customIconColor">message</i> Channel Messaging </h2>
 
-        <hr class="roundedDivider"> <br>
+        <hr class="roundedHorDivider"> <br>
 
         
         <h3>Setup</h3>
@@ -75,7 +74,7 @@
     
         </form>
 
-        <br><hr class="roundedDivider"> <br>
+        <br><hr class="roundedHorDivider"> <br>
 
         <!-- Subscribe channel -->
         <h3>Subscribe</h3>
@@ -90,17 +89,35 @@
         <br><br>
         <h3>Messages</h3>
         <div id="chat-container" class="chat-container" style="display: none;">
-          <div class="channel-list" id="channel-list"></div>
 
-          <hr class="roundedDivider">
-          
-          <div id="chat-box" class="chat-box">
-              <!-- Chat messages will be dynamically added here -->
+          <div class="customrow">
+            <!--LEFT List of channels -->
+            <div class="left30percentWidth">
+              <h4>Channels</h4>
+              <div class="channel-list" id="channel-list">
+                <!-- channels appear here -->
+              </div>
+            </div>
+        
+
+            <div class="roundedVerDivider"></div>
+
+            <!-- RIGHT Messages display  -->
+            <div class="chat-area">
+              <h4 id="selectedChannel">SelectedChannel</h4>
+
+              <div id="chat-box" class="chat-box">
+                <!-- Chat messages will be dynamically added here -->
+              </div>
+
+              <div class="input-area">
+                  <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
+                  <button id="sendButton" class="customButton fillBGAccent" >Send</button>
+              </div>
+            </div>
           </div>
-          <div class="input-area">
-              <input type="text" id="messageInput" class="customInputRectangle"  placeholder="Type a message...">
-              <button id="sendButton" class="customButton fillBGAccent" >Send</button>
-          </div>
+
+
       </div>
 
 
@@ -116,7 +133,8 @@
     <script src="../../OtherAssets/agora-rtm-2.2.0.min.js"></script>
     <script src="channelMessaging.js"></script>
     <script src="../../Models/CustomRTMUser.js"></script> <!-- This should contain the User class -->
-    <script src="../../Models/CustomRTMChannel.js"></script> <!-- This should contain the User class -->
+    <script src="../../Models/CustomRTMChannel.js"></script> <!-- This should contain the Channel class -->
+    <script src="../../Models/CustomRTMMessage.js"></script> <!-- This should contain the Message class -->
 
 
 
