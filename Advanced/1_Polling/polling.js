@@ -8,12 +8,25 @@ var options = {
     token: null
 };
 
-
 var isLoggedIn = false;
 
-var channels = []
+var users = [];
 
-var selectedChannel = "Selected Channel";
+let mainChannel = "PollRootChannel"; // All users will join this root channel to receive RTM events
+let customPollQuestionType = "pollquestion"
+let customPollResultType = "pollresult"
+let defaultPollTime = 15
+
+var currentPoll = {
+  id: generateUUID(), // Generate a UUID for the new poll
+  question: "(Example) Which one do you prefer?",
+  options: {"MacOS":10, "Windows OS":5, "Linux":9},
+  sender: "User1",
+  totalUsers: 30,
+  totalSubmission: 24,
+  timestamp: Math.floor(Date.now() / 1000) + defaultPollTime // Current timestamp in seconds
+};
+
 
 $("#login").click(async function (e) {
     e.preventDefault();
@@ -29,13 +42,17 @@ $("#login").click(async function (e) {
               alert("Please fill in all the fields: UID, and AppID.");
             }
             else { 
-              $('#login').text('Logging in'); 
+              $('#login').text('Setting up...'); 
+              await agoraSetupRTM(); // Init RTM, setup event listeners
 
-              await agoraSetupRTM();
-              await agoraLoginRTM();
+              $('#login').text('Logging in...'); 
+              await agoraLoginRTM(); // Login to RTM 
+
+              $('#login').text('Subscribing channel...'); 
+              await agoraSubscribeChannel(mainChannel); // Subscribe to root channel events 
 
               $('#login').text('Logout'); 
-              $("#sectionSubscribe").show();  // Show subscribe section after login 
+              // $("#sectionSubscribe").show();  // Show subscribe section after login 
             }
       
           } catch (error) {
@@ -46,8 +63,8 @@ $("#login").click(async function (e) {
         agoraLogoutRTM();
 
         $('#login').text('Login'); // Change button text back to 'Login'
-        $("#sectionSubscribe").hide(); // hide subscribe section 
-        $("#sectionMessages").hide(); // hide messages section
+        // $("#sectionSubscribe").hide(); // hide subscribe section 
+        // $("#sectionMessages").hide(); // hide messages section
     }
 });
 
@@ -115,15 +132,30 @@ const agoraUnSubscribeChannel = async (channelName) => {
     }
 }
 
-const agoraPublishMessage = async (message) => {
-  // const payload = { type: "text", message: message };
-  // const publishMessage = JSON.stringify(payload);
-  const publishOptions = { channelType: 'MESSAGE'}
-  try {
-    const result = await rtm.publish(selectedChannel, message, publishOptions);
+const agoraPublishPollQuestion = async (pollQuestion, pollOptions) => {
+  // Create a new CustomPoll object
+  const newPoll = {
+    id: generateUUID(), // Generate a UUID for the new poll
+    question: pollQuestion,
+    options: pollOptions,
+    sender: options.uid,
+    totalUsers: users.length,
+    totalSubmission: 0,
+    timestamp: Math.floor(Date.now() / 1000) + defaultPollTime  // Current timestamp in seconds
+  };
 
-    // Add to local view
-    // addMessageToChat(message, "local");
+  // Convert the object to a JSON string
+  const newPollJsonString = JSON.stringify(newPoll);
+
+  // Message Options 
+  const publishOptions = {
+    customType: customPollQuestionType, // Optional, user-defined field
+    channelType: 'MESSAGE'  // Optional, specify the channel type if needed
+  };
+
+  // Publish the poll
+  try {
+    const result = await rtm.publish(mainChannel, newPollJsonString, publishOptions);
 
   } catch (status) {
     alert("Publish Message failed " + status);
@@ -131,68 +163,32 @@ const agoraPublishMessage = async (message) => {
   }
 }
 
-// Render the channel list
-function renderChannelsList() {
-  const channelListElement = document.getElementById('channel-list');
-  channelListElement.innerHTML = ''; // Clear previous content
+const agoraPublishPollResponse = async (pollAnswer) => {
 
-  channels.forEach(channel => {
-      const channelItem = document.createElement('div');
-      channelItem.className = 'channel-item';
+  // Message Options 
+  const publishOptions = {
+    customType: customPollResultType, // Optional, user-defined field
+    channelType: 'MESSAGE'  // Optional, specify the channel type if needed
+  };
 
-      // Check if this channel is the selected one
-      if (channel.channelName === selectedChannel) {
-          channelItem.classList.add('selected-channel'); // Use classList.add
-      } else {
-          channelItem.classList.remove('selected-channel'); // Use classList.remove
-      }
-      
-      channelItem.textContent = `${channel.channelName} #${channel.users.length}`;
-      channelItem.onclick = function() {
-        loadChannelMessages(channel.channelName);
-      }; // on click listener
-      channelListElement.appendChild(channelItem);
+  // Publish the poll
+  try {
+    const result = await rtm.publish(mainChannel, pollAnswer, publishOptions);
+
+  } catch (status) {
+    alert("Publish Message failed " + status);
+    console.log(status);
+  }
+}
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
   });
 }
 
-// Load the target channel messages
-function loadChannelMessages(targetChannel) {
-
-  selectedChannel = targetChannel;
-  $('#selectedChannel').val(targetChannel); 
-
-  // Rerender channel list to show selected channel
-  renderChannelsList();
-  
-  $('#chat-box').empty(); // Clear previous messages
-
-  const channelFound = channels.find(channel => channel.channelName === targetChannel);
-
-  channelFound.messages.forEach(customMessage => {
-    const messageContainer = $("<div></div>").addClass("message");
-    const senderNameElement = $("<div></div>").addClass("sender-name").text(customMessage.publisher);
-    const messageElement = $("<div></div>").text(customMessage.message);
-  
-    // Append sender's name and message
-    messageContainer.append(senderNameElement);
-    messageContainer.append(messageElement);
-  
-    if (customMessage.publisher === options.uid) {
-        messageContainer.addClass("local-message-alignment");
-        messageElement.addClass("local-message-design")
-    } else {
-        messageContainer.addClass("remote-message-alignment");
-        messageElement.addClass("remote-message-design")
-    }
-  
-    // Append the message container to the chat box
-    $("#chat-box").append(messageContainer);
-  
-    // Scroll to the bottom of the chat box
-    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-  });
-
-}
 
 // MARK: BUTTON EVENT LISTENERS
 $("#sendButton").click(function () {
@@ -202,47 +198,6 @@ $("#sendButton").click(function () {
     agoraPublishMessage(message); // Publish the message asynchronously
     $("#messageInput").val(""); // Clear the input field after sending
   }
-});
-
-$("#subscribeBtn").click(async function() {
-  try { 
-    let channelName = $("#channelInput").val();
-
-    if (channelName) { 
-      // Create custom channel, and push it to the list BEFORE subscribe, because Snapshot triggers immediate after subscribe
-      const customChannel = new CustomRTMChannel(channelName, [], []);
-      channels.push(customChannel);
-
-      // Subscribe to channel
-      await agoraSubscribeChannel(channelName);
-
-      // Clear the input field after subscribing
-      $("#channelInput").val(""); 
-
-      // Change target channel name
-      $('#selectedChannel').text(channelName); 
-
-      loadChannelMessages(channelName);
-      // renderChannelsList();
-    }
-
-    // If there is channels, show the Messages Section
-    if (channels.length > 0) { 
-      $("#sectionMessages").show(); // 
-    }
-
-  } catch (error) {
-    console.error(error);
-
-    let channelName = $("#channelInput").val();
-
-    // If there are errors, remove the channels added above
-    const channelIndex = channels.findIndex(customChannel => customChannel.channelName === channelName);
-    if (channelIndex !== -1) {
-      channelIndex.splice(channelIndex, 1);
-    }
-  } 
-  
 });
 
 
@@ -261,13 +216,24 @@ function handleRTMMessageEvent(event) {
     // Handle the message here (e.g., log it, update UI, etc.)
     console.log(`Bac's Received message from ${publisher}: ${message}`);
 
-    const channelFound = channels.find(channel => channel.channelName === channelName);
+    // In RTM Web, Local user will also receive their own message, local UI is handled somewhere else
+    if (channelType == "MESSAGE" && publisher != options.uid) { 
+      if (customType == customPollQuestionType) { 
+        const newPoll = JSON.parse(message);
+        currentPoll = newPoll;
+      }else if (customType == customPollResultType) { 
+           // Check if the answer is a valid option
+        if (currentPoll.options[message] !== undefined) {
+          // Increment the count for the selected option
+          currentPoll.options[message] += 1;
+          currentPoll.totalSubmission += 1;
+          
+          console.log(`${publisher} answered '${message}'`);
+        } 
 
-    if (channelFound) { 
-      const customMessage = new CustomRTMMessage(message, publisher);
-      channelFound.messages.push(customMessage);
+      }
 
-      loadChannelMessages(channelName);
+      renderPoll();
     }
     
 }
@@ -286,58 +252,50 @@ function handleRTMPresenceEvent(event) {
     console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
 
     // const chnIndex = channels.findIndex(u => u.channelName === channelName);
-    const channelFound = channels.find(channel => channel.channelName === channelName);
-
-    const user = new CustomRTMUser(channelType, channelName, publisher, states);
+    const userFound = users.find(customUser => customUser.publisher === publisher);
+    const userIndex = users.findIndex(customUser => customUser.publisher === publisher);
 
     switch (action) {
         case 'REMOTE_JOIN':
             // Add user to the array
-            if (channelFound) { 
-              channelFound.users.push(user);
+            if (userFound) { 
+              return;
+            }else { 
+              const newUser = new CustomRTMUser(channelType, channelName, publisher, states);
+              users.push(newUser);
             }
+
             
             break;
         case 'REMOTE_LEAVE':
             // Remove user from the array (assuming publisher is unique)
-            if (channelFound) { 
-              const userIndex = channelFound.users.findIndex(u => u.publisher === publisher);
-              if (userIndex !== -1) {
-                channelFound.users.splice(userIndex, 1);
-              }
+            if (userIndex !== -1) {
+              users.splice(userIndex, 1);
             }
-
             break;
         case 'REMOTE_STATE_CHANGED':
             // Update user state if they already exist
-            if (channelFound) { 
-              const userFound = channelFound.users.find(user => user.publisher === publisher);
-
-              if (userFound) {
-                userFound.states = stateChanged; // Update the state
-              }
+            if (userFound) {
+              userFound.states = stateChanged; // Update the state
             }
             break;
 
         case 'SNAPSHOT':
             // Populate the users array from the snapshot
-            if (channelFound) { 
 
-              channelFound.users.length = 0; // Reset the users
+            users.length = 0; // Reset the users
 
-              snapshot.forEach(userSnapshot => {
+            snapshot.forEach(userSnapshot => {
 
-                console.log("Bac's usersnapshot " + userSnapshot);
-                const user = new CustomRTMUser(
-                    channelType,
-                    channelName,
-                    userSnapshot.userId,
-                    userSnapshot.states
-                );
-                channelFound.users.push(user);
-              });
-
-            }
+              console.log("Bac's usersnapshot " + userSnapshot);
+              const user = new CustomRTMUser(
+                  channelType,
+                  channelName,
+                  userSnapshot.userId,
+                  userSnapshot.states
+              );
+              users.push(user);
+            });
 
             break;
 
@@ -346,9 +304,6 @@ function handleRTMPresenceEvent(event) {
             console.log(`Unhandled action: ${action}`);
             break;
     }
-
-    renderChannelsList(); // Update the display
-
 }
 
 function handleRTMLinkStateEvent(event) { 
@@ -364,5 +319,83 @@ function handleRTMLinkStateEvent(event) {
 }
 
 
-//   window.onload = setupRTM;
 
+let selectedAnswer = "";
+let timerInterval;
+
+function renderPoll() {
+  $('#pollQuestion').text(currentPoll.question);
+  $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
+  $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
+  $('#pollSender').text(`From: ${currentPoll.sender}`);
+
+  $.each(currentPoll.options, function(key, value) {
+      $('#pollOptions').append(`
+          <div class="poll-option" data-key="${key}">
+              <span>${key}</span><span class="progress">${value}</span>
+              <button class="check-button">✔️</button>
+          </div>
+      `);
+  });
+
+  startTimer();
+}
+
+function selectOption(key) {
+  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
+      selectedAnswer = key;
+      $('.poll-option').removeClass('selected');
+      $('.check-button').prop('disabled', true); // Disable all buttons
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
+      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
+      $('#publishAnswer').prop('disabled', false); // Enable the submit button
+  }
+}
+
+function startTimer() {
+  const $timerElement = $('#pollTimer');
+  timerInterval = setInterval(function() {
+    const remainingTime = Math.max(0, currentPoll.timestamp - Math.floor(Date.now() / 1000));
+    $timerElement.text(remainingTime > 0 ? `${remainingTime}s` : "Finished");
+
+      if (remainingTime <= 0) {
+          clearInterval(timerInterval);
+          showResults();
+      }
+  }, 100);
+}
+
+function showResults() {
+  $('#pollOptions').empty(); // Clear options
+
+  $.each(currentPoll.options, function(key, value) {
+      const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
+      const percentage = (value / totalVotes) * 100;
+      $('#pollOptions').append(`<div>${key}: ${percentage.toFixed(2)}%</div>`);
+  });
+}
+
+// Event delegation for dynamically created elements
+$('#pollOptions').on('click', '.poll-option', function() {
+  const key = $(this).data('key');
+  console.log("Poll options click " + key);
+
+  selectOption(key);
+});
+
+// Publish the answer when the button is clicked
+$('#publishAnswer').on('click', async function() {
+  if (selectedAnswer) {
+    await agoraPublishPollResponse(selectedAnswer);
+
+    if (currentPoll.options[selectedAnswer] !== undefined) {
+      // Increment the count for the selected option
+      currentPoll.options[selectedAnswer] += 1;
+      currentPoll.totalSubmission += 1;
+      
+      console.log(`YOU answered '${selectedAnswer}'`);
+    } 
+  }
+});
+
+window.onload = renderPoll;

@@ -43,7 +43,7 @@
     
       <div class="container">
 
-        <h2><i class="material-icons customIconColor">message</i> Channel Messaging </h2>
+        <h2><i class="material-icons customIconColor">message</i> Poll Demo</h2>
 
         <hr class="roundedHorDivider"> <br>
 
@@ -65,7 +65,7 @@
             </div>
 
             <div class="col-sm">
-              <p class="join-info-text">Login</p>
+              <p class="join-info-text" style="visibility: hidden;">Login</p>
               <button id="login" type="submit" class="customButton fillBGAccent">Login</button>
             </div>
           </div>
@@ -76,51 +76,27 @@
 
         <br><hr class="roundedHorDivider"> <br>
 
-        <!-- Subscribe channel -->
-        <div id="sectionSubscribe" style="display: none;">
-          <h3>Subscribe</h3>
-          <div class="input-area">
-            <input type="text" id="channelInput" class="customInputRectangle"  placeholder="Subscribe a channel ....">
-            <button id="subscribeBtn" class="customButton">Subscribe</button>
-          </div>
-
-        </div>
-
-
 
         <!-- MAIN CONTENT -->
         <br><br>
-
-        <div id="sectionMessages" style="display: none;">
-          <h3>Messages</h3>
-          <div id="chat-container" class="chat-container">
-
-            <div class="customrow">
-              <!--LEFT List of channels -->
-              <div class="left30percentWidth">
-                <h4>Channels</h4>
-                <div class="channel-list" id="channel-list">
-                  <!-- channels appear here -->
-                </div>
+        <!-- style="display: none;" -->
+        <div id="sectionPoll" >
+          <h3>Poll</h3>
+            <div id="pollItem" class="poll-item">
+              <div class="poll-header">
+                  <h5 id="pollQuestion"></h5>
+                  <span id="pollTimer" class="timer"></span>
               </div>
-          
-
-              <!-- <div class="roundedVerDivider"></div> -->
-
-              <!-- RIGHT Messages display  -->
-              <div class="chat-area">
-                <h4 id="selectedChannel">SelectedChannel</h4>
-
-                <div id="chat-box" class="chat-box">
-                  <!-- Chat messages will be dynamically added here -->
-                </div>
-
-                <div class="input-area inverse">
-                    <input type="text" id="messageInput" class="customInputRectangle inverse"  placeholder="Type a message...">
-                    <button id="sendButton" class="customButton fillBGAccent" >Send</button>
-                </div>
+              <div id="pollOptions" class="poll-options"></div>
+              <div id="submitResponse" class="submit-response">
+                <button id="publishAnswer" disabled>Submit Answer</button>
               </div>
-            </div>
+              <div class="poll-footer">
+                  <span id="userCount"></span>
+                  <span id="submissionCount"></span>
+                  <span id="pollSender"></span>
+              </div>
+          </div>
         </div>
 
       </div>
