@@ -59,7 +59,8 @@ $("#login").click(async function (e) {
 
               // Refresh poll
               renderPoll();
-              $("#sectionPoll").show(); // 
+              $('#sectionPoll').show(); //
+              $('#createPollBtn').show(); 
             }
       
           } catch (error) {
@@ -70,8 +71,8 @@ $("#login").click(async function (e) {
         agoraLogoutRTM();
 
         $('#login').text('Login'); // Change button text back to 'Login'
-        $("#sectionPoll").hide(); // hide poll section 
-        // $("#sectionMessages").hide(); // hide messages section
+        $('#sectionPoll').hide(); // hide poll section 
+        $('#createPollBtn').hide();
     }
 });
 
@@ -85,27 +86,72 @@ $("#sendButton").click(function () {
   }
 });
 
-
 // Event delegation for dynamically created elements
-$('#pollOptions').on('click', '.poll-option', function() {
+$('#pollOptions').on('click', '.poll-option', async function() {
   const key = $(this).data('key');
-  console.log("Poll options click " + key);
 
-  selectOption(key);
+  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
+    selectedAnswer = key;
+    $('.poll-option').removeClass('selected');
+    $('.check-button').prop('disabled', true); // Disable all buttons
+    $(`.poll-option[data-key="${key}"]`).addClass('selected');
+    $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
+    $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
+
+    // Publish answer
+    if (selectedAnswer) {
+      await agoraPublishPollResponse(selectedAnswer);
+    }
+  }
+  
 });
 
-// Publish the answer when the button is clicked
-$('#publishAnswer').on('click', async function() {
-  if (selectedAnswer) {
-    await agoraPublishPollResponse(selectedAnswer);
 
-    if (currentPoll.options[selectedAnswer] !== undefined) {
-      // Increment the count for the selected option
-      currentPoll.options[selectedAnswer] += 1;
-      currentPoll.totalSubmission += 1;
-      
-      console.log(`YOU answered '${selectedAnswer}'`);
-    } 
+$("#createPollBtn").click(function () {
+  $('#pollModal').show();
+});
+
+// Handle form submission
+$('#pollForm').on('submit', async function(event) {
+  event.preventDefault(); // Prevent the default form submission
+
+  // Get the poll question and options
+  var question = $('#pollNewQuestion').val();
+
+  // Initialize an empty options object
+  var options = {};
+
+  // Collect options and their initial vote counts
+  options[$('#pollOption1').val()] = 0;
+  options[$('#pollOption2').val()] = 0;
+  if ($('#pollOption3').val()) {
+      options[$('#pollOption3').val()] = 0;
+  }
+  if ($('#pollOption4').val()) {
+      options[$('#pollOption4').val()] = 0;
+  }
+
+  console.log("You created poll " + question + " options " + options)
+  await agoraPublishPollQuestion(question, options);
+
+  // Close the modal after submitting
+  $('#pollModal').hide();
+
+  // Optionally, reset the form
+  $(this).trigger('reset');
+});
+
+
+$('.close').on('click', function(event) {
+  $('#pollModal').hide();
+});
+
+// When the user clicks anywhere outside of the modal, close it
+$(window).on('click', function(event) {
+  var modal = $('#pollModal');
+
+  if ($(event.target).is(modal)) {
+      modal.hide();
   }
 });
 
@@ -229,6 +275,8 @@ function renderPoll() {
   $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
   $('#pollSender').text(`From: ${currentPoll.sender}`);
 
+  $('#pollOptions').empty(); // This will remove all options from the select element
+
   $.each(currentPoll.options, function(key, value) {
       $('#pollOptions').append(`
           <div class="poll-option" data-key="${key}">
@@ -241,17 +289,6 @@ function renderPoll() {
   startTimer();
 }
 
-function selectOption(key) {
-  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
-      selectedAnswer = key;
-      $('.poll-option').removeClass('selected');
-      $('.check-button').prop('disabled', true); // Disable all buttons
-      $(`.poll-option[data-key="${key}"]`).addClass('selected');
-      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
-      $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
-      $('#publishAnswer').prop('disabled', false); // Enable the submit button
-  }
-}
 
 function startTimer() {
   const $timerElement = $('#pollTimer');
@@ -299,10 +336,11 @@ function handleRTMMessageEvent(event) {
     console.log(`Bac's Received message from ${publisher}: ${message}`);
 
     // In RTM Web, Local user will also receive their own message, local UI is handled somewhere else
-    if (channelType == "MESSAGE" && publisher != options.uid) { 
+    if (channelType == "MESSAGE") { 
       if (customType == customPollQuestionType) { 
         const newPoll = JSON.parse(message);
         currentPoll = newPoll;
+        renderPoll();
       }else if (customType == customPollResultType) { 
            // Check if the answer is a valid option
         if (currentPoll.options[message] !== undefined) {
@@ -311,11 +349,10 @@ function handleRTMMessageEvent(event) {
           currentPoll.totalSubmission += 1;
           
           console.log(`${publisher} answered '${message}'`);
+          $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
         } 
-
       }
 
-      renderPoll();
     }
     
 }
@@ -330,7 +367,7 @@ function handleRTMPresenceEvent(event) {
     const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
     const timestamp = event.timestamp; // Event timestamp
 
-    console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
+    console.log(`Bac's Presence message from ${publisher}: ${action} ${snapshot}`);
 
     // const chnIndex = channels.findIndex(u => u.channelName === channelName);
     const userFound = users.find(customUser => customUser.publisher === publisher);

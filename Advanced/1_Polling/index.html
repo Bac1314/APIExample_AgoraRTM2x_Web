@@ -88,14 +88,42 @@
                   <span id="pollTimer" class="timer"></span>
               </div>
               <div id="pollOptions" class="poll-options"></div>
-              <div id="submitResponse" class="submit-response">
-                <button id="publishAnswer" disabled class="customButton">Submit Answer</button>
-              </div>
               <div class="poll-footer">
                   <span id="userCount"></span>
                   <span id="submissionCount"></span>
                   <span id="pollSender"></span>
               </div>
+          </div>
+        </div>
+
+        <!-- Button to Open the Modal -->
+
+        <br><br>
+        
+        <button id="createPollBtn" class="customButton" style="display: none;">Create Poll</button>
+
+
+        <!-- The Modal -->
+        <div id="pollModal" class="modal">
+          <div class="modal-content">
+              <span class="close" style="color: red;  font-size: xxx-large;">&times;</span>
+              <h2>Create a Poll</h2>
+              <form id="pollForm">
+                  <input type="text" id="pollNewQuestion" placeholder="Enter your question..."  name="pollQuestion" class="customInputStyle extra1remTop" required>
+
+                  <hr class="roundedHorDivider"> <br>
+
+                  <input type="text" id="pollOption1" placeholder="Option A"  name="pollOption1" class="customInputStyle" required>
+
+                  <input type="text" id="pollOption2" placeholder="Option B"  name="pollOption2" class="customInputStyle extra1remTop" required>
+
+                  <input type="text" id="pollOption3" placeholder="Option C"  name="pollOption3" class="customInputStyle extra1remTop">
+
+                  <input type="text" id="pollOption4" placeholder="Option D"  name="pollOption4" class="customInputStyle extra1remTop">
+
+                  <br>
+                  <button type="submit" class="customButton fillBGAccent">Publish Poll</button>
+              </form>
           </div>
         </div>
 

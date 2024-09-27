@@ -91,20 +91,25 @@ body {
 
 }
 
+.customInputStyle.inverse{ 
+  color: black;
+}
+
 .customInputStyle:disabled {
   background-color: darkgray; /* Light gray background */
   cursor: not-allowed; /* Change cursor to indicate disabled state */
 }
 
-.customInputRectangle { 
+.customInputStyleFillWidth { 
+  border: 1.5px solid white;
+  border-radius: 20px;
   background-color: transparent;
   width: -webkit-fill-available;
-  color: white;
-  border: none;
+  color: white; 
   margin: 0rem 1rem;
 }
 
-.customInputRectangle.inverse{ 
+.customInputStyleFillWidth.inverse{ 
   color: black;
 }
 
@@ -155,6 +160,10 @@ hr.roundedHorDivider {
   display: flex;
   flex-wrap: wrap;
   height: -webkit-fill-available;
+}
+
+.extra1remTop { 
+  margin-top: 1rem;
 }
 /*
 .listofchats { 
