@@ -194,9 +194,6 @@ function agoraLogoutRTM() {
       const result = rtm.logout(); // Call the logout method
       console.log(result);
       isLoggedIn = false; // Update the login status
-
-      channels.length = 0 // Reset the array
-      selectedChannel = "Selected Channel"; 
   } catch (status) {
     alert("Logout RTM failed " + status);
       console.log(status);
@@ -454,6 +451,8 @@ function handleRTMLinkStateEvent(event) {
     const unrestoredChannels = event.unrestoredChannels;
     const timestamp = event.timestamp;
     const isResumed = event.isResumed;
+
+    $('#rtmlinkstate').text(currentState);
 }
 
 // window.onload = renderPoll;

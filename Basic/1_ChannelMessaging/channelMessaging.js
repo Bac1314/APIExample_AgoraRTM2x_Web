@@ -357,6 +357,8 @@ function handleRTMLinkStateEvent(event) {
     const unrestoredChannels = event.unrestoredChannels;
     const timestamp = event.timestamp;
     const isResumed = event.isResumed;
+
+    $('#rtmlinkstate').text(currentState);
 }
 
 

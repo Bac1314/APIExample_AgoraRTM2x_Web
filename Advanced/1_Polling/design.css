@@ -84,12 +84,3 @@ form {
     display: flex;
     flex-direction: column; /* Stack inputs vertically */
 }
-
-label {
-    margin-top: 10px; /* Space between labels and inputs */
-}
-
-input {
-    padding: 8px;
-    margin-top: 5px; /* Space between input fields */
-}

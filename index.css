@@ -165,6 +165,14 @@ hr.roundedHorDivider {
 .extra1remTop { 
   margin-top: 1rem;
 }
+
+.linkstatedesign { 
+  font-size: small;
+  color: white;
+  background: deepskyblue;
+  padding: 6px;
+  border-radius: 24px;
+}
 /*
 .listofchats { 
   display: grid;
