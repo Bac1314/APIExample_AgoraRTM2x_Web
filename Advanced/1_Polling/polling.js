@@ -56,6 +56,10 @@ $("#login").click(async function (e) {
 
               $('#login').text('Logout'); 
               // $("#sectionSubscribe").show();  // Show subscribe section after login 
+
+              // Refresh poll
+              renderPoll();
+              $("#sectionPoll").show(); // 
             }
       
           } catch (error) {
@@ -66,7 +70,7 @@ $("#login").click(async function (e) {
         agoraLogoutRTM();
 
         $('#login').text('Login'); // Change button text back to 'Login'
-        // $("#sectionSubscribe").hide(); // hide subscribe section 
+        $("#sectionPoll").hide(); // hide poll section 
         // $("#sectionMessages").hide(); // hide messages section
     }
 });
