@@ -27,7 +27,10 @@ var currentPoll = {
   timestamp: Math.floor(Date.now() / 1000) + defaultPollTime // Current timestamp in seconds
 };
 
+let selectedAnswer = "";
+let timerInterval;
 
+// MARK: BUTTON EVENT LISTENERS
 $("#login").click(async function (e) {
     e.preventDefault();
 
@@ -68,7 +71,42 @@ $("#login").click(async function (e) {
     }
 });
 
-const agoraSetupRTM = async () => {
+
+$("#sendButton").click(function () {
+  const message = $("#messageInput").val().trim();
+
+  if (message !== "") {
+    agoraPublishMessage(message); // Publish the message asynchronously
+    $("#messageInput").val(""); // Clear the input field after sending
+  }
+});
+
+
+// Event delegation for dynamically created elements
+$('#pollOptions').on('click', '.poll-option', function() {
+  const key = $(this).data('key');
+  console.log("Poll options click " + key);
+
+  selectOption(key);
+});
+
+// Publish the answer when the button is clicked
+$('#publishAnswer').on('click', async function() {
+  if (selectedAnswer) {
+    await agoraPublishPollResponse(selectedAnswer);
+
+    if (currentPoll.options[selectedAnswer] !== undefined) {
+      // Increment the count for the selected option
+      currentPoll.options[selectedAnswer] += 1;
+      currentPoll.totalSubmission += 1;
+      
+      console.log(`YOU answered '${selectedAnswer}'`);
+    } 
+  }
+});
+
+// MARK: AGORA FUNCTIONS
+async function agoraSetupRTM() {
     // Initialize the RTM client.
     try {
       rtm = new RTM(options.appid, options.uid);
@@ -84,7 +122,7 @@ const agoraSetupRTM = async () => {
 
   }
 
-const agoraLoginRTM = async () => {
+async function agoraLoginRTM() {
 
   // Log in the RTM server.
   try {
@@ -97,7 +135,7 @@ const agoraLoginRTM = async () => {
     }
 }
 
-const agoraLogoutRTM = () => {
+function agoraLogoutRTM() {
   // Log out from the RTM server.
   try {
       const result = rtm.logout(); // Call the logout method
@@ -113,7 +151,7 @@ const agoraLogoutRTM = () => {
 };
 
 
-const agoraSubscribeChannel = async (channelName) => { 
+async function agoraSubscribeChannel(channelName) { 
   try {
       const result = await rtm.subscribe(channelName);
       console.log(result);
@@ -123,7 +161,7 @@ const agoraSubscribeChannel = async (channelName) => {
     }
 }
 
-const agoraUnSubscribeChannel = async (channelName) => { 
+async function agoraUnSubscribeChannel(channelName) { 
   try {
       const result = await rtm.unSubscribeChannel(channelName);
       console.log(result);
@@ -132,7 +170,7 @@ const agoraUnSubscribeChannel = async (channelName) => {
     }
 }
 
-const agoraPublishPollQuestion = async (pollQuestion, pollOptions) => {
+async function agoraPublishPollQuestion(pollQuestion, pollOptions) {
   // Create a new CustomPoll object
   const newPoll = {
     id: generateUUID(), // Generate a UUID for the new poll
@@ -163,8 +201,7 @@ const agoraPublishPollQuestion = async (pollQuestion, pollOptions) => {
   }
 }
 
-const agoraPublishPollResponse = async (pollAnswer) => {
-
+async function agoraPublishPollResponse(pollAnswer) {
   // Message Options 
   const publishOptions = {
     customType: customPollResultType, // Optional, user-defined field
@@ -181,6 +218,60 @@ const agoraPublishPollResponse = async (pollAnswer) => {
   }
 }
 
+// MARK: Other functions
+function renderPoll() {
+  $('#pollQuestion').text(currentPoll.question);
+  $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
+  $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
+  $('#pollSender').text(`From: ${currentPoll.sender}`);
+
+  $.each(currentPoll.options, function(key, value) {
+      $('#pollOptions').append(`
+          <div class="poll-option" data-key="${key}">
+              <button class="check-button">o</button>
+              <span>${key}</span>
+          </div>
+      `);
+  });
+
+  startTimer();
+}
+
+function selectOption(key) {
+  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
+      selectedAnswer = key;
+      $('.poll-option').removeClass('selected');
+      $('.check-button').prop('disabled', true); // Disable all buttons
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
+      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
+      $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
+      $('#publishAnswer').prop('disabled', false); // Enable the submit button
+  }
+}
+
+function startTimer() {
+  const $timerElement = $('#pollTimer');
+  timerInterval = setInterval(function() {
+    const remainingTime = Math.max(0, currentPoll.timestamp - Math.floor(Date.now() / 1000));
+    $timerElement.text(remainingTime > 0 ? `${remainingTime}s` : "Finished");
+
+      if (remainingTime <= 0) {
+          clearInterval(timerInterval);
+          showResults();
+      }
+  }, 100);
+}
+
+function showResults() {
+  $('#pollOptions').empty(); // Clear options
+
+  $.each(currentPoll.options, function(key, value) {
+      const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
+      const percentage = (value / totalVotes) * 100;
+      $('#pollOptions').append(`<div>${key}: ${percentage.toFixed(2)}%</div>`);
+  });
+}
+
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = Math.random() * 16 | 0;
@@ -189,20 +280,7 @@ function generateUUID() {
   });
 }
 
-
-// MARK: BUTTON EVENT LISTENERS
-$("#sendButton").click(function () {
-  const message = $("#messageInput").val().trim();
-
-  if (message !== "") {
-    agoraPublishMessage(message); // Publish the message asynchronously
-    $("#messageInput").val(""); // Clear the input field after sending
-  }
-});
-
-
-// MARK: EVENT LISTENERS
-
+// MARK: AGORA EVENT LISTENERS
 function handleRTMMessageEvent(event) {
     const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
     const channelName = event.channelName; // Which channel does this message come from
@@ -237,7 +315,6 @@ function handleRTMMessageEvent(event) {
     }
     
 }
-
 
 function handleRTMPresenceEvent(event) {
     const action = event.eventType; // Which action it is ,should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
@@ -318,84 +395,4 @@ function handleRTMLinkStateEvent(event) {
     const isResumed = event.isResumed;
 }
 
-
-
-let selectedAnswer = "";
-let timerInterval;
-
-function renderPoll() {
-  $('#pollQuestion').text(currentPoll.question);
-  $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
-  $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
-  $('#pollSender').text(`From: ${currentPoll.sender}`);
-
-  $.each(currentPoll.options, function(key, value) {
-      $('#pollOptions').append(`
-          <div class="poll-option" data-key="${key}">
-              <span>${key}</span><span class="progress">${value}</span>
-              <button class="check-button">✔️</button>
-          </div>
-      `);
-  });
-
-  startTimer();
-}
-
-function selectOption(key) {
-  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
-      selectedAnswer = key;
-      $('.poll-option').removeClass('selected');
-      $('.check-button').prop('disabled', true); // Disable all buttons
-      $(`.poll-option[data-key="${key}"]`).addClass('selected');
-      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
-      $('#publishAnswer').prop('disabled', false); // Enable the submit button
-  }
-}
-
-function startTimer() {
-  const $timerElement = $('#pollTimer');
-  timerInterval = setInterval(function() {
-    const remainingTime = Math.max(0, currentPoll.timestamp - Math.floor(Date.now() / 1000));
-    $timerElement.text(remainingTime > 0 ? `${remainingTime}s` : "Finished");
-
-      if (remainingTime <= 0) {
-          clearInterval(timerInterval);
-          showResults();
-      }
-  }, 100);
-}
-
-function showResults() {
-  $('#pollOptions').empty(); // Clear options
-
-  $.each(currentPoll.options, function(key, value) {
-      const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
-      const percentage = (value / totalVotes) * 100;
-      $('#pollOptions').append(`<div>${key}: ${percentage.toFixed(2)}%</div>`);
-  });
-}
-
-// Event delegation for dynamically created elements
-$('#pollOptions').on('click', '.poll-option', function() {
-  const key = $(this).data('key');
-  console.log("Poll options click " + key);
-
-  selectOption(key);
-});
-
-// Publish the answer when the button is clicked
-$('#publishAnswer').on('click', async function() {
-  if (selectedAnswer) {
-    await agoraPublishPollResponse(selectedAnswer);
-
-    if (currentPoll.options[selectedAnswer] !== undefined) {
-      // Increment the count for the selected option
-      currentPoll.options[selectedAnswer] += 1;
-      currentPoll.totalSubmission += 1;
-      
-      console.log(`YOU answered '${selectedAnswer}'`);
-    } 
-  }
-});
-
-window.onload = renderPoll;
+// window.onload = renderPoll;

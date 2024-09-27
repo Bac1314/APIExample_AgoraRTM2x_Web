@@ -14,6 +14,7 @@ var isLoggedIn = false;
 
 var users = []
 
+// MARK: BUTTON EVENT LISTENERS
 $("#login").click(async function (e) {
     e.preventDefault();
     // $("#join").attr("disabled", true);
@@ -53,7 +54,25 @@ $("#login").click(async function (e) {
     }
 });
 
-const setupRTM = async () => {
+$("#sendButton").click(function () {
+  const message = $("#messageInput").val().trim();
+
+  if (message !== "") {
+    publishMessage(message); // Publish the message asynchronously
+    $("#messageInput").val(""); // Clear the input field after sending
+  }
+});
+
+// Event listener for input changes
+$('#frienduid').on('blur', function() {
+    options.frienduid = $(this).val(); // Update the local variable
+    $('#userCount').text(options.frienduid); // show friend uid in top of chatbox
+
+});
+
+
+// AGORA FUNCTIONS 
+async function setupRTM() {
     // Initialize the RTM client.
     try {
       rtm = new RTM(options.appid, options.uid);
@@ -69,7 +88,7 @@ const setupRTM = async () => {
 
   }
 
-const loginRTM = async () => {
+async function loginRTM() {
 
   // Log in the RTM server.
   try {
@@ -84,7 +103,7 @@ const loginRTM = async () => {
     }
 }
 
-const logoutRTM = () => {
+function logoutRTM() {
   // Log out from the RTM server.
   try {
       const result = rtm.logout(); // Call the logout method
@@ -98,18 +117,7 @@ const logoutRTM = () => {
   }
 };
 
-
-// const subscribeChannel = async (channelName) => { 
-//   try {
-//       const result = await rtm.subscribe(channelName);
-//       console.log(result);
-//     } catch (status) {
-//       alert("Subscribe to " + channelName + " failed " + status);
-//       console.log(status);
-//     }
-// }
-
-const publishMessage = async (message) => {
+async function publishMessage(message) {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
   const publishOptions = { channelType: 'USER'}
@@ -152,25 +160,6 @@ function addMessageToChat(text, sender) {
 }
 
 
-// MARK: BUTTON EVENT LISTENERS
-$("#sendButton").click(function () {
-  const message = $("#messageInput").val().trim();
-
-  if (message !== "") {
-    publishMessage(message); // Publish the message asynchronously
-    $("#messageInput").val(""); // Clear the input field after sending
-  }
-});
-
-// Event listener for input changes
-$('#frienduid').on('blur', function() {
-    options.frienduid = $(this).val(); // Update the local variable
-    $('#userCount').text(options.frienduid); // show friend uid in top of chatbox
-
-});
-
-
-
 // MARK: EVENT LISTENERS
 
 function handleRTMMessageEvent(event) {
@@ -188,69 +177,6 @@ function handleRTMMessageEvent(event) {
 
     addMessageToChat(message, publisher);
 }
-
-
-// function handleRTMPresenceEvent(event) {
-//     const action = event.eventType; // Which action it is ,should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
-//     const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
-//     const channelName = event.channelName; // Which channel does this event come from
-//     const publisher = event.publisher; // Who trigger this event
-//     const states = event.stateChanged; // User state payload, only for stateChanged event
-//     const interval = event.interval; // Interval payload, only for interval event
-//     const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
-//     const timestamp = event.timestamp; // Event timestamp
-
-//     console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
-
-//     const user = new CustomRTMUser(channelType, channelName, publisher, states);
-
-//     switch (action) {
-//         case 'REMOTE_JOIN':
-//             // Add user to the array
-//             users.push(user);
-//             break;
-//         case 'REMOTE_LEAVE':
-//             // Remove user from the array (assuming publisher is unique)
-//             const index = users.findIndex(u => u.publisher === publisher);
-//             if (index !== -1) {
-//                 users.splice(index, 1);
-//             }
-//             break;
-//         case 'REMOTE_STATE_CHANGED':
-//             // Update user state if they already exist
-//             const existingUser = users.find(u => u.publisher === publisher);
-//             if (existingUser) {
-//                 existingUser.states = stateChanged; // Update the state
-//             }
-//             break;
-
-//         case 'SNAPSHOT':
-//             // Clear the current users array
-//             users.length = 0; // Reset the array
-
-//             // Populate the users array from the snapshot
-//             snapshot.forEach(userSnapshot => {
-
-//                 console.log("Bac's usersnapshot " + userSnapshot);
-//                 const user = new CustomRTMUser(
-//                     channelType,
-//                     channelName,
-//                     userSnapshot.userId,
-//                     userSnapshot.states
-//                 );
-//                 users.push(user);
-//             });
-//             break;
-
-//         // Handle other actions as needed
-//         default:
-//             console.log(`Unhandled action: ${action}`);
-//             break;
-//     }
-
-//     $('#userCount').text('#'+users.length + " users"); // Update the total users
-
-// }
 
 function handleRTMLinkStateEvent(event) { 
     const currentState = event.currentState;

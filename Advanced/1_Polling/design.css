@@ -1,6 +1,6 @@
 .poll-item {
     background: black;
-    border-radius: 10px;
+    border-radius: 16px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     width: 300px;
@@ -21,16 +21,16 @@
     align-items: center;
     cursor: pointer;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 16px;
     transition: background 0.3s;
 }
 
 .poll-option:hover {
-    background: #f0f0f0;
+    background: rgb(94, 123, 208);
 }
 
 .poll-option.selected {
-    background: #007bff;
+    background: royalblue;
     color: white;
 }
 

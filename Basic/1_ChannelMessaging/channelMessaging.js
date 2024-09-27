@@ -7,14 +7,11 @@ var options = {
     uid: null,
     token: null
 };
-
-
 var isLoggedIn = false;
-
 var channels = []
-
 var selectedChannel = "Selected Channel";
 
+// MARK: BUTTON EVENT LISTENERS
 $("#login").click(async function (e) {
     e.preventDefault();
 
@@ -51,7 +48,59 @@ $("#login").click(async function (e) {
     }
 });
 
-const agoraSetupRTM = async () => {
+$("#sendButton").click(function () {
+  const message = $("#messageInput").val().trim();
+
+  if (message !== "") {
+    agoraPublishMessage(message); // Publish the message asynchronously
+    $("#messageInput").val(""); // Clear the input field after sending
+  }
+});
+
+$("#subscribeBtn").click(async function() {
+  try { 
+    let channelName = $("#channelInput").val();
+
+    if (channelName) { 
+      // Create custom channel, and push it to the list BEFORE subscribe, because Snapshot triggers immediate after subscribe
+      const customChannel = new CustomRTMChannel(channelName, [], []);
+      channels.push(customChannel);
+
+      // Subscribe to channel
+      await agoraSubscribeChannel(channelName);
+
+      // Clear the input field after subscribing
+      $("#channelInput").val(""); 
+
+      // Change target channel name
+      $('#selectedChannel').text(channelName); 
+
+      loadChannelMessages(channelName);
+      // renderChannelsList();
+    }
+
+    // If there is channels, show the Messages Section
+    if (channels.length > 0) { 
+      $("#sectionMessages").show(); // 
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    let channelName = $("#channelInput").val();
+
+    // If there are errors, remove the channels added above
+    const channelIndex = channels.findIndex(customChannel => customChannel.channelName === channelName);
+    if (channelIndex !== -1) {
+      channelIndex.splice(channelIndex, 1);
+    }
+  } 
+  
+});
+
+
+// MARK: AGORA FUNCTIONS
+async function agoraSetupRTM() {
     // Initialize the RTM client.
     try {
       rtm = new RTM(options.appid, options.uid);
@@ -67,8 +116,7 @@ const agoraSetupRTM = async () => {
 
   }
 
-const agoraLoginRTM = async () => {
-
+async function agoraLoginRTM() {
   // Log in the RTM server.
   try {
       const result = await rtm.login({  token: options.token == null ? options.appid : options.token });
@@ -80,7 +128,7 @@ const agoraLoginRTM = async () => {
     }
 }
 
-const agoraLogoutRTM = () => {
+function agoraLogoutRTM() {
   // Log out from the RTM server.
   try {
       const result = rtm.logout(); // Call the logout method
@@ -96,7 +144,7 @@ const agoraLogoutRTM = () => {
 };
 
 
-const agoraSubscribeChannel = async (channelName) => { 
+async function agoraSubscribeChannel(channelName) { 
   try {
       const result = await rtm.subscribe(channelName);
       console.log(result);
@@ -106,7 +154,7 @@ const agoraSubscribeChannel = async (channelName) => {
     }
 }
 
-const agoraUnSubscribeChannel = async (channelName) => { 
+async function agoraUnSubscribeChannel(channelName) { 
   try {
       const result = await rtm.unSubscribeChannel(channelName);
       console.log(result);
@@ -115,7 +163,7 @@ const agoraUnSubscribeChannel = async (channelName) => {
     }
 }
 
-const agoraPublishMessage = async (message) => {
+async function agoraPublishMessage(message) {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
   const publishOptions = { channelType: 'MESSAGE'}
@@ -194,59 +242,7 @@ function loadChannelMessages(targetChannel) {
 
 }
 
-// MARK: BUTTON EVENT LISTENERS
-$("#sendButton").click(function () {
-  const message = $("#messageInput").val().trim();
-
-  if (message !== "") {
-    agoraPublishMessage(message); // Publish the message asynchronously
-    $("#messageInput").val(""); // Clear the input field after sending
-  }
-});
-
-$("#subscribeBtn").click(async function() {
-  try { 
-    let channelName = $("#channelInput").val();
-
-    if (channelName) { 
-      // Create custom channel, and push it to the list BEFORE subscribe, because Snapshot triggers immediate after subscribe
-      const customChannel = new CustomRTMChannel(channelName, [], []);
-      channels.push(customChannel);
-
-      // Subscribe to channel
-      await agoraSubscribeChannel(channelName);
-
-      // Clear the input field after subscribing
-      $("#channelInput").val(""); 
-
-      // Change target channel name
-      $('#selectedChannel').text(channelName); 
-
-      loadChannelMessages(channelName);
-      // renderChannelsList();
-    }
-
-    // If there is channels, show the Messages Section
-    if (channels.length > 0) { 
-      $("#sectionMessages").show(); // 
-    }
-
-  } catch (error) {
-    console.error(error);
-
-    let channelName = $("#channelInput").val();
-
-    // If there are errors, remove the channels added above
-    const channelIndex = channels.findIndex(customChannel => customChannel.channelName === channelName);
-    if (channelIndex !== -1) {
-      channelIndex.splice(channelIndex, 1);
-    }
-  } 
-  
-});
-
-
-// MARK: EVENT LISTENERS
+// MARK: AGORA EVENT LISTENERS
 
 function handleRTMMessageEvent(event) {
     const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
