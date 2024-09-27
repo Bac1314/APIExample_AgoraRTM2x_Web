@@ -91,17 +91,20 @@ $('#pollOptions').on('click', '.poll-option', async function() {
   const key = $(this).data('key');
 
   if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
-    selectedAnswer = key;
-    $('.poll-option').removeClass('selected');
-    $('.check-button').prop('disabled', true); // Disable all buttons
-    $(`.poll-option[data-key="${key}"]`).addClass('selected');
-    $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
-    $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
-
-    // Publish answer
-    if (selectedAnswer) {
-      await agoraPublishPollResponse(selectedAnswer);
+    if (selectedAnswer == "") { 
+      selectedAnswer = key;
+      $('.poll-option').removeClass('selected');
+      $('.check-button').prop('disabled', true); // Disable all buttons
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
+      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
+      $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
+  
+      // Publish answer
+      if (selectedAnswer) {
+        await agoraPublishPollResponse(selectedAnswer);
+      }
     }
+
   }
   
 });
@@ -270,6 +273,9 @@ async function agoraPublishPollResponse(pollAnswer) {
 
 // MARK: Other functions
 function renderPoll() {
+
+  selectedAnswer = "";
+
   $('#pollQuestion').text(currentPoll.question);
   $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
   $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
@@ -307,11 +313,25 @@ function showResults() {
   $('#pollOptions').empty(); // Clear options
 
   $.each(currentPoll.options, function(key, value) {
-      const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
-      const percentage = (value / totalVotes) * 100;
-      $('#pollOptions').append(`<div>${key}: ${percentage.toFixed(2)}%</div>`);
+    const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
+    
+    // Calculate percentage, defaulting to 0 if totalVotes is 0
+    const percentage = totalVotes > 0 ? (value / totalVotes) * 100 : 0;
+
+ 
+    // Append options with a class and data attribute
+    $('#pollOptions').append(`
+      <div class="poll-option" data-key="${key}">
+        ${key}: ${percentage.toFixed(2)}%
+      </div>
+    `);
+
+    if (key == selectedAnswer) { 
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
+    }
   });
 }
+
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
