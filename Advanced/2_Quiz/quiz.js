@@ -41,6 +41,8 @@ var listOfQuizzes = [];
 $("#login").click(async function (e) {
     e.preventDefault();
 
+    generateMockQuizzes();
+
     if(!isLoggedIn) { 
         try {
             options.uid = $("#uid").val();
@@ -108,7 +110,7 @@ $('#quizOptions').on('click', '.quiz-option', async function() {
   
       // Publish answer
       if (selectedAnswer) {
-        await agoraPublishquizResponse(selectedAnswer);
+        await agoraPublishQuizResponse(selectedAnswer);
       }
     }
 
@@ -141,7 +143,7 @@ $('#quizForm').on('submit', async function(event) {
   }
 
   console.log("You created quiz " + question + " options " + options)
-  await agoraPublishquizQuestion(question, options);
+  await agoraPublishQuizQuestion(question, options);
 
   // Close the modal after submitting
   $('#quizModal').hide();
@@ -226,7 +228,7 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function agoraPublishquizQuestion(quizQuestion, quizOptions) {
+async function agoraPublishQuizQuestion(quizQuestion, quizOptions) {
   // Create a new Customquiz object
   const newquiz = {
     id: generateUUID(), // Generate a UUID for the new quiz
@@ -235,7 +237,7 @@ async function agoraPublishquizQuestion(quizQuestion, quizOptions) {
     sender: options.uid,
     totalUsers: users.length,
     totalSubmission: 0,
-    timestamp: Math.floor(Date.now() / 1000) + defaultquizTime  // Current timestamp in seconds
+    timestamp: Math.floor(Date.now() / 1000)   // Current timestamp in seconds
   };
 
   // Convert the object to a JSON string
@@ -257,7 +259,7 @@ async function agoraPublishquizQuestion(quizQuestion, quizOptions) {
   }
 }
 
-async function agoraPublishquizResponse(quizAnswer) {
+async function agoraPublishQuizResponse(quizAnswer) {
   // Message Options 
   const publishOptions = {
     customType: customquizResultType, // Optional, user-defined field
@@ -275,6 +277,24 @@ async function agoraPublishquizResponse(quizAnswer) {
 }
 
 // MARK: Other functions
+function generateMockQuizzes() { 
+    // Load the JSON file and convert it to a JavaScript array
+  fetch('quizmockdata.json') // Specify the path to your JSON file
+  .then(response => response.json()) // Convert response to JSON
+  .then(data => {
+    // `data` is now your array of objects
+    console.log(data); // Logs the entire array
+    // You can now work with the array, e.g.:
+    data.forEach(question => {
+      console.log(question.question); // Log each question
+    });
+  })
+  .catch(error => {
+    console.error('Error loading JSON:', error);
+  });
+
+}
+
 function renderquiz() {
 
   selectedAnswer = "";
