@@ -10,38 +10,13 @@ var options = {
 
 var isLoggedIn = false;
 
-var users = []; // Should be userID, userScore
+var users = [];
 
-let mainChannel = "QuizRootChannel"; // All users will join this root channel to receive RTM events
-let customquizQuestionType = "quizquestion"
-let customquizResultType = "quizresult"
-
-var currentquiz = {
-  id: generateUUID(), // Generate a UUID for the new quiz
-  question:"(Example) I like pandas",
-  options: ["Yes", "No"], 
-  answer: "Yes", 
-  sender: "panda_lover_1991",
-  totalUsers: 10,
-  totalSubmission: 9,
-  timestamp: Math.floor(Date.now() / 1000)
-};
-
-let selectedAnswer = "";
-let timerInterval;
-
-// properties for keeping local user temporary score
-let scoreKey = "scoreKey"
-var scoreValue = 0
-
-// list of random quiz questions from the web
-var listOfQuizzes = [];
+let mainChannel = "BiddingRootChannel"; // All users will join this root channel to receive RTM events
 
 // MARK: BUTTON EVENT LISTENERS
 $("#login").click(async function (e) {
     e.preventDefault();
-
-    // generateMockQuizzes();
 
     if(!isLoggedIn) { 
         try {
@@ -66,10 +41,10 @@ $("#login").click(async function (e) {
               $('#login').text('Logout'); 
               // $("#sectionSubscribe").show();  // Show subscribe section after login 
 
-              // Refresh quiz
-              renderquiz();
-              $('#sectionquiz').show(); //
-              $('#createquizBtn').show(); 
+              // Refresh poll
+              renderPoll();
+              $('#sectionPoll').show(); //
+              $('#createPollBtn').show(); 
             }
       
           } catch (error) {
@@ -80,8 +55,8 @@ $("#login").click(async function (e) {
         agoraLogoutRTM();
 
         $('#login').text('Login'); // Change button text back to 'Login'
-        $('#sectionquiz').hide(); // hide quiz section 
-        $('#createquizBtn').hide();
+        $('#sectionPoll').hide(); // hide poll section 
+        $('#createPollBtn').hide();
     }
 });
 
@@ -96,21 +71,21 @@ $("#sendButton").click(function () {
 });
 
 // Event delegation for dynamically created elements
-$('#quizOptions').on('click', '.quiz-option', async function() {
+$('#pollOptions').on('click', '.poll-option', async function() {
   const key = $(this).data('key');
 
-  if (Math.floor(Date.now() / 1000) < currentquiz.timestamp) {
+  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
     if (selectedAnswer == "") { 
       selectedAnswer = key;
-      $('.quiz-option').removeClass('selected');
+      $('.poll-option').removeClass('selected');
       $('.check-button').prop('disabled', true); // Disable all buttons
-      $(`.quiz-option[data-key="${key}"]`).addClass('selected');
-      $(`.quiz-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
-      $(`.quiz-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
+      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
+      $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
   
       // Publish answer
       if (selectedAnswer) {
-        await agoraPublishQuizResponse(selectedAnswer);
+        await agoraPublishPollResponse(selectedAnswer);
       }
     }
 
@@ -118,35 +93,35 @@ $('#quizOptions').on('click', '.quiz-option', async function() {
 });
 
 
-$("#createquizBtn").click(function () {
-  $('#quizModal').show();
+$("#createPollBtn").click(function () {
+  $('#pollModal').show();
 });
 
 // Handle form submission
-$('#quizForm').on('submit', async function(event) {
+$('#pollForm').on('submit', async function(event) {
   event.preventDefault(); // Prevent the default form submission
 
-  // Get the quiz question and options
-  var question = $('#quizNewQuestion').val();
+  // Get the poll question and options
+  var question = $('#pollNewQuestion').val();
 
   // Initialize an empty options object
   var options = {};
 
   // Collect options and their initial vote counts
-  options[$('#quizOption1').val()] = 0;
-  options[$('#quizOption2').val()] = 0;
-  if ($('#quizOption3').val()) {
-      options[$('#quizOption3').val()] = 0;
+  options[$('#pollOption1').val()] = 0;
+  options[$('#pollOption2').val()] = 0;
+  if ($('#pollOption3').val()) {
+      options[$('#pollOption3').val()] = 0;
   }
-  if ($('#quizOption4').val()) {
-      options[$('#quizOption4').val()] = 0;
+  if ($('#pollOption4').val()) {
+      options[$('#pollOption4').val()] = 0;
   }
 
-  console.log("You created quiz " + question + " options " + options)
-  await agoraPublishQuizQuestion(question, options);
+  console.log("You created poll " + question + " options " + options)
+  await agoraPublishPollQuestion(question, options);
 
   // Close the modal after submitting
-  $('#quizModal').hide();
+  $('#pollModal').hide();
 
   // Optionally, reset the form
   $(this).trigger('reset');
@@ -154,12 +129,12 @@ $('#quizForm').on('submit', async function(event) {
 
 
 $('.close').on('click', function(event) {
-  $('#quizModal').hide();
+  $('#pollModal').hide();
 });
 
 // When the user clicks anywhere outside of the modal, close it
 $(window).on('click', function(event) {
-  var modal = $('#quizModal');
+  var modal = $('#pollModal');
 
   if ($(event.target).is(modal)) {
       modal.hide();
@@ -179,6 +154,7 @@ async function agoraSetupRTM() {
     // Setup Event Listeners
     rtm.addEventListener("message", handleRTMMessageEvent);
     rtm.addEventListener("presence", handleRTMPresenceEvent);
+    rtm.addEventListener("storage", handleRTMMetaDataEvent)
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
 
   }
@@ -228,30 +204,30 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function agoraPublishQuizQuestion(quizQuestion, quizOptions) {
-  // Create a new Customquiz object
-  const newquiz = {
-    id: generateUUID(), // Generate a UUID for the new quiz
-    question: quizQuestion,
-    options: quizOptions,
+async function agoraPublishPollQuestion(pollQuestion, pollOptions) {
+  // Create a new CustomPoll object
+  const newPoll = {
+    id: generateUUID(), // Generate a UUID for the new poll
+    question: pollQuestion,
+    options: pollOptions,
     sender: options.uid,
     totalUsers: users.length,
     totalSubmission: 0,
-    timestamp: Math.floor(Date.now() / 1000)   // Current timestamp in seconds
+    timestamp: Math.floor(Date.now() / 1000) + defaultPollTime  // Current timestamp in seconds
   };
 
   // Convert the object to a JSON string
-  const newquizJsonString = JSON.stringify(newquiz);
+  const newPollJsonString = JSON.stringify(newPoll);
 
   // Message Options 
   const publishOptions = {
-    customType: customquizQuestionType, // Optional, user-defined field
+    customType: customPollQuestionType, // Optional, user-defined field
     channelType: 'MESSAGE'  // Optional, specify the channel type if needed
   };
 
-  // Publish the quiz
+  // Publish the poll
   try {
-    const result = await rtm.publish(mainChannel, newquizJsonString, publishOptions);
+    const result = await rtm.publish(mainChannel, newPollJsonString, publishOptions);
 
   } catch (status) {
     alert("Publish Message failed " + status);
@@ -259,16 +235,16 @@ async function agoraPublishQuizQuestion(quizQuestion, quizOptions) {
   }
 }
 
-async function agoraPublishQuizResponse(quizAnswer) {
+async function agoraPublishPollResponse(pollAnswer) {
   // Message Options 
   const publishOptions = {
-    customType: customquizResultType, // Optional, user-defined field
+    customType: customPollResultType, // Optional, user-defined field
     channelType: 'MESSAGE'  // Optional, specify the channel type if needed
   };
 
-  // Publish the quiz
+  // Publish the poll
   try {
-    const result = await rtm.publish(mainChannel, quizAnswer, publishOptions);
+    const result = await rtm.publish(mainChannel, pollAnswer, publishOptions);
 
   } catch (status) {
     alert("Publish Message failed " + status);
@@ -277,38 +253,20 @@ async function agoraPublishQuizResponse(quizAnswer) {
 }
 
 // MARK: Other functions
-function generateMockQuizzes() { 
-    // Load the JSON file and convert it to a JavaScript array
-  fetch('quizmockdata.json') // Specify the path to your JSON file
-  .then(response => response.json()) // Convert response to JSON
-  .then(data => {
-    // `data` is now your array of objects
-    console.log(data); // Logs the entire array
-    // You can now work with the array, e.g.:
-    data.forEach(question => {
-      console.log(question.question); // Log each question
-    });
-  })
-  .catch(error => {
-    console.error('Error loading JSON:', error);
-  });
-
-}
-
-function renderquiz() {
+function renderPoll() {
 
   selectedAnswer = "";
 
-  $('#quizQuestion').text(currentquiz.question);
-  $('#userCount').text(`# Users: ${currentquiz.totalUsers}`);
-  $('#submissionCount').text(`# Submissions: ${currentquiz.totalSubmission}`);
-  $('#quizSender').text(`From: ${currentquiz.sender}`);
+  $('#pollQuestion').text(currentPoll.question);
+  $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
+  $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
+  $('#pollSender').text(`From: ${currentPoll.sender}`);
 
-  $('#quizOptions').empty(); // This will remove all options from the select element
+  $('#pollOptions').empty(); // This will remove all options from the select element
 
-  $.each(currentquiz.options, function(key, value) {
-      $('#quizOptions').append(`
-          <div class="quiz-option" data-key="${key}">
+  $.each(currentPoll.options, function(key, value) {
+      $('#pollOptions').append(`
+          <div class="poll-option" data-key="${key}">
               <button class="check-button">o</button>
               <span>${key}</span>
           </div>
@@ -320,9 +278,9 @@ function renderquiz() {
 
 
 function startTimer() {
-  const $timerElement = $('#quizTimer');
+  const $timerElement = $('#pollTimer');
   timerInterval = setInterval(function() {
-    const remainingTime = Math.max(0, currentquiz.timestamp - Math.floor(Date.now() / 1000));
+    const remainingTime = Math.max(0, currentPoll.timestamp - Math.floor(Date.now() / 1000));
     $timerElement.text(remainingTime > 0 ? `${remainingTime}s` : "Finished");
 
       if (remainingTime <= 0) {
@@ -333,24 +291,24 @@ function startTimer() {
 }
 
 function showResults() {
-  $('#quizOptions').empty(); // Clear options
+  $('#pollOptions').empty(); // Clear options
 
-  $.each(currentquiz.options, function(key, value) {
-    const totalVotes = Object.values(currentquiz.options).reduce((a, b) => a + b, 0);
+  $.each(currentPoll.options, function(key, value) {
+    const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
     
     // Calculate percentage, defaulting to 0 if totalVotes is 0
     const percentage = totalVotes > 0 ? (value / totalVotes) * 100 : 0;
 
  
     // Append options with a class and data attribute
-    $('#quizOptions').append(`
-      <div class="quiz-option" data-key="${key}">
+    $('#pollOptions').append(`
+      <div class="poll-option" data-key="${key}">
         ${key}: ${percentage.toFixed(2)}%
       </div>
     `);
 
     if (key == selectedAnswer) { 
-      $(`.quiz-option[data-key="${key}"]`).addClass('selected');
+      $(`.poll-option[data-key="${key}"]`).addClass('selected');
     }
   });
 }
@@ -380,19 +338,19 @@ function handleRTMMessageEvent(event) {
 
     // In RTM Web, Local user will also receive their own message, local UI is handled somewhere else
     if (channelType == "MESSAGE") { 
-      if (customType == customquizQuestionType) { 
-        const newquiz = JSON.parse(message);
-        currentquiz = newquiz;
-        renderquiz();
-      }else if (customType == customquizResultType) { 
+      if (customType == customPollQuestionType) { 
+        const newPoll = JSON.parse(message);
+        currentPoll = newPoll;
+        renderPoll();
+      }else if (customType == customPollResultType) { 
            // Check if the answer is a valid option
-        if (currentquiz.options[message] !== undefined) {
+        if (currentPoll.options[message] !== undefined) {
           // Increment the count for the selected option
-          currentquiz.options[message] += 1;
-          currentquiz.totalSubmission += 1;
+          currentPoll.options[message] += 1;
+          currentPoll.totalSubmission += 1;
           
           console.log(`${publisher} answered '${message}'`);
-          $('#submissionCount').text(`# Submissions: ${currentquiz.totalSubmission}`);
+          $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
         } 
       }
 
@@ -481,4 +439,13 @@ function handleRTMLinkStateEvent(event) {
     $('#rtmlinkstate').text(currentState);
 }
 
-// window.onload = renderquiz;
+function handleRTMMetaDataEvent(event) { 
+  const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
+  const channelName = event.channelName; // Which channel does this event come from
+  const publisher = event.publisher; // Who trigger this event
+  const storageType = event.storageType; // Which category the event is, should be 'USER'、'CHANNEL'
+  const action = event.eventType; // Which action it is ,should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
+  const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
+  const timestamp = event.timestamp; // Event timestamp
+}
+// window.onload = renderPoll;
