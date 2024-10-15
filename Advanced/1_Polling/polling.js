@@ -17,14 +17,14 @@ let customPollQuestionType = "pollquestion"
 let customPollResultType = "pollresult"
 let defaultPollTime = 15
 
-var currentPoll = {
+var currentAuctionItem = {
   id: generateUUID(), // Generate a UUID for the new poll
-  question: "(Example) Which one do you prefer?",
-  options: {"MacOS":10, "Windows OS":5, "Linux":9},
-  sender: "User1",
-  totalUsers: 30,
-  totalSubmission: 24,
-  timestamp: Math.floor(Date.now() / 1000) + defaultPollTime // Current timestamp in seconds
+  majorRevision: -1,
+  auctionName: "(Example) Auction Title",
+  startingPrice: 0,
+  currentBid: 0,
+  highestBidder: "User1",
+  lastUpdatedTimeStamp: Math.floor(Date.now() / 1000) + defaultPollTime // Current timestamp in seconds
 };
 
 let selectedAnswer = "";

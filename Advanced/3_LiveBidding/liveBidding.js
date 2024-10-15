@@ -1,7 +1,5 @@
 const { RTM } = AgoraRTM;
-
 let rtm;
-
 var options = {
     appid: null,
     uid: null,
@@ -13,6 +11,16 @@ var isLoggedIn = false;
 var users = [];
 
 let mainChannel = "BiddingRootChannel"; // All users will join this root channel to receive RTM events
+
+var currentAuctionItem = {
+  id: generateUUID(), // Generate a UUID for the new poll
+  majorRevision: -1,
+  auctionName: "(Example) Auction Title",
+  startingPrice: 0,
+  currentBid: 0,
+  highestBidder: "User1",
+  lastUpdatedTimeStamp: Math.floor(Date.now() / 1000) // Current timestamp in seconds
+};
 
 // MARK: BUTTON EVENT LISTENERS
 $("#login").click(async function (e) {
@@ -152,7 +160,7 @@ async function agoraSetupRTM() {
     }
 
     // Setup Event Listeners
-    rtm.addEventListener("message", handleRTMMessageEvent);
+    // rtm.addEventListener("message", handleRTMMessageEvent);
     rtm.addEventListener("presence", handleRTMPresenceEvent);
     rtm.addEventListener("storage", handleRTMMetaDataEvent)
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
@@ -204,51 +212,102 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function agoraPublishPollQuestion(pollQuestion, pollOptions) {
-  // Create a new CustomPoll object
-  const newPoll = {
-    id: generateUUID(), // Generate a UUID for the new poll
-    question: pollQuestion,
-    options: pollOptions,
-    sender: options.uid,
-    totalUsers: users.length,
-    totalSubmission: 0,
-    timestamp: Math.floor(Date.now() / 1000) + defaultPollTime  // Current timestamp in seconds
-  };
+async function agoraPublishNewAuction(auctionName, staringPrince) { 
+  const metaDataItems = [
+    {
+      key : "auctionName",
+      value : auctionName
+    },
+    {
+      key : "startingPrice",
+      value : staringPrince.toString(),
+    },
+    {
+      key : "currentBid",
+      value : staringPrince.toString()
+    },
+    {
+      key : "highestBidder",
+      value : options.uid,
+    }, 
+    {
+      key : "lastUpdatedTimeStamp",
+      value : Math.floor(Date.now() / 1000).toString(),
+    }
+  ];
 
-  // Convert the object to a JSON string
-  const newPollJsonString = JSON.stringify(newPoll);
+  const metaOptions = { 
+    majorRevision : await agoraFetchMajorRevision(),
+    lockName: "lockName",
+    addTimeStamp : true,
+    addUserId : true
+  }
 
-  // Message Options 
-  const publishOptions = {
-    customType: customPollQuestionType, // Optional, user-defined field
-    channelType: 'MESSAGE'  // Optional, specify the channel type if needed
-  };
-
-  // Publish the poll
   try {
-    const result = await rtm.publish(mainChannel, newPollJsonString, publishOptions);
-
+    const result = await rtm.storage.setChannelMetadata( mainChannel, "MESSAGE", metaDataItems, metaOptions);
+    console.log(result);
   } catch (status) {
-    alert("Publish Message failed " + status);
-    console.log(status);
+      console.log(status);
   }
 }
 
-async function agoraPublishPollResponse(pollAnswer) {
-  // Message Options 
-  const publishOptions = {
-    customType: customPollResultType, // Optional, user-defined field
-    channelType: 'MESSAGE'  // Optional, specify the channel type if needed
-  };
-
-  // Publish the poll
+async function agoraFetchMajorRevision() {
   try {
-    const result = await rtm.publish(mainChannel, pollAnswer, publishOptions);
-
+    const result = await rtm.storage.getChannelMetadata(mainChannel, "MESSAGE");
+    console.log(result);
+    return result.majorRevision
   } catch (status) {
-    alert("Publish Message failed " + status);
-    console.log(status);
+      console.log(status);
+      return 0 
+  }
+}
+
+// function UpdateAuctionFromRemoteUsers(metadataItems : [AgoraRtmMetadataItem], majorRevision: Int64) {
+//   // When auction is updated
+  
+//   if let auctionName = metadataItems.first(where: {$0.key == "auctionName"})?.value, let auctionStartingPrice = Int(metadataItems.first(where: {$0.key == "startingPrice"})?.value ?? "0") {
+//       print("UpdateAuction name \(auctionName) starting \(auctionStartingPrice)")
+//       let auctionName : String = auctionName
+//       let startPrice : Int = auctionStartingPrice
+//       let currentBid : Int = Int(metadataItems.first(where: {$0.key == "currentBid"})?.value ?? "0") ?? startPrice
+//       let highestBidder : String = metadataItems.first(where: {$0.key == "highestBidder"})?.value ?? ""
+//       let lastUpdatedTimeStamp : Int = Int(metadataItems.first(where: {$0.key == "timeIntervalSince1970"})?.value ?? "0") ?? 0
+      
+//       currentAuctionItem = CustomAuctionItem(majorRevision: majorRevision, auctionName: auctionName, startingPrice: startPrice, currentBid: currentBid, highestBidder: highestBidder, lastUpdatedTimeStamp: lastUpdatedTimeStamp)
+//   }
+  
+// }
+
+
+async function agoraDeleteAuctionStorage() {
+  const metaDataItems = [
+    {
+      key : "auctionName",
+    },
+    {
+      key : "startingPrice",
+    },
+    {
+      key : "currentBid",
+    },
+    {
+      key : "highestBidder",
+    }, 
+    {
+      key : "lastUpdatedTimeStamp",
+    }
+  ];
+
+  const metaOptions = { 
+    data: metaDataItems,
+    majorRevision : await agoraFetchMajorRevision(),
+  }
+
+  try {
+      const result = await rtm.storage.removeChannelMetadata(channelName, "MESSAGE", metaOptions);
+      console.log(result);
+  } catch (status) {
+      console.log(status);
   }
 }
 
@@ -273,21 +332,6 @@ function renderPoll() {
       `);
   });
 
-  startTimer();
-}
-
-
-function startTimer() {
-  const $timerElement = $('#pollTimer');
-  timerInterval = setInterval(function() {
-    const remainingTime = Math.max(0, currentPoll.timestamp - Math.floor(Date.now() / 1000));
-    $timerElement.text(remainingTime > 0 ? `${remainingTime}s` : "Finished");
-
-      if (remainingTime <= 0) {
-          clearInterval(timerInterval);
-          showResults();
-      }
-  }, 100);
 }
 
 function showResults() {
@@ -332,29 +376,6 @@ function handleRTMMessageEvent(event) {
     const publisher = event.publisher; // Message publisher
     const message = event.message; // Message payload
     const timestamp = event.timestamp; // Event timestamp
-
-    // Handle the message here (e.g., log it, update UI, etc.)
-    console.log(`Bac's Received message from ${publisher}: ${message}`);
-
-    // In RTM Web, Local user will also receive their own message, local UI is handled somewhere else
-    if (channelType == "MESSAGE") { 
-      if (customType == customPollQuestionType) { 
-        const newPoll = JSON.parse(message);
-        currentPoll = newPoll;
-        renderPoll();
-      }else if (customType == customPollResultType) { 
-           // Check if the answer is a valid option
-        if (currentPoll.options[message] !== undefined) {
-          // Increment the count for the selected option
-          currentPoll.options[message] += 1;
-          currentPoll.totalSubmission += 1;
-          
-          console.log(`${publisher} answered '${message}'`);
-          $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
-        } 
-      }
-
-    }
     
 }
 
