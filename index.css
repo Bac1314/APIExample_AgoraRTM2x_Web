@@ -173,6 +173,25 @@ hr.roundedHorDivider {
   padding: 6px;
   border-radius: 24px;
 }
+
+.roundedcardbg_black {
+  background: black;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 300px;
+  color: white;
+}
+
+
+.roundedcardbg_white {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(171, 171, 171, 0.1);
+  padding: 20px;
+  width: 300px;
+  color: black;
+}
 /*
 .listofchats { 
   display: grid;

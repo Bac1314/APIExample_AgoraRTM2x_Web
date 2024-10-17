@@ -43,7 +43,7 @@
     
       <div class="container">
 
-        <h2><i class="material-icons customIconColor">message</i> Poll Demo <label id="rtmlinkstate" class="linkstatedesign"></label></h2>
+        <h2><i class="material-icons customIconColor">message</i> Live Auction Demo <label id="rtmlinkstate" class="linkstatedesign"></label></h2>
 
         <hr class="roundedHorDivider"> <br>
         
@@ -79,52 +79,25 @@
         <!-- MAIN CONTENT -->
         <br><br>
         <!-- style="display: none;" -->
-        <div id="sectionPoll" style="display: none;">
-          <h3>Poll</h3>
-            <div id="pollItem" class="poll-item">
-              <div class="poll-header">
-                  <h5 id="pollQuestion"></h5>
-                  <span id="pollTimer" class="timer"></span>
+        <div id="sectionAuction" style="display:flex;">
+
+          <div class="customrow roundedcardbg_white" style="width: 50%;"> 
+            <img src="../../Assets/charizard.jpg" style="width: 50%;">
+
+            <div style="width: 50%; padding: 1rem;">
+              <div class="timer" style="font-size: x-small;">
+                  <span class="ending">ENDING IN</span>
+                  <span id="time">365 days</span>
               </div>
-              <div id="pollOptions" class="poll-options"></div>
-              <div class="poll-footer">
-                  <span id="userCount"></span>
-                  <span id="submissionCount"></span>
-                  <span id="pollSender"></span>
-              </div>
+              <div style="font-size: medium;">Charizard PSA 10</div>
+              <div style="font-size: small;">Current bid</div>
+              <div style="font-size: x-large; font-weight: bold;" id="bid-amount">$100</div>
+              <div style="font-size: small;" id="highest-bidder">by Highest Bidder</div>
+            </div>
           </div>
         </div>
-
-        <!-- Button to Open the Modal -->
 
         <br><br>
-        
-        <button id="createPollBtn" class="customButton" style="display: none;">Create Poll</button>
-
-
-        <!-- The Modal -->
-        <div id="pollModal" class="modal">
-          <div class="modal-content">
-              <span class="close" style="color: red;  font-size: xxx-large;">&times;</span>
-              <h2>Create a Poll</h2>
-              <form id="pollForm">
-                  <input type="text" id="pollNewQuestion" placeholder="Enter your question..."  name="pollQuestion" class="customInputStyle extra1remTop" required>
-
-                  <hr class="roundedHorDivider"> <br>
-
-                  <input type="text" id="pollOption1" placeholder="Option A"  name="pollOption1" class="customInputStyle" required>
-
-                  <input type="text" id="pollOption2" placeholder="Option B"  name="pollOption2" class="customInputStyle extra1remTop" required>
-
-                  <input type="text" id="pollOption3" placeholder="Option C"  name="pollOption3" class="customInputStyle extra1remTop">
-
-                  <input type="text" id="pollOption4" placeholder="Option D"  name="pollOption4" class="customInputStyle extra1remTop">
-
-                  <br>
-                  <button type="submit" class="customButton fillBGAccent">Publish Poll</button>
-              </form>
-          </div>
-        </div>
 
       </div>
 

@@ -15,7 +15,7 @@ let mainChannel = "BiddingRootChannel"; // All users will join this root channel
 var currentAuctionItem = {
   id: generateUUID(), // Generate a UUID for the new poll
   majorRevision: -1,
-  auctionName: "(Example) Auction Title",
+  auctionName: "(Example) Testing Auction Title",
   startingPrice: 0,
   currentBid: 0,
   highestBidder: "User1",
@@ -68,86 +68,6 @@ $("#login").click(async function (e) {
     }
 });
 
-
-$("#sendButton").click(function () {
-  const message = $("#messageInput").val().trim();
-
-  if (message !== "") {
-    agoraPublishMessage(message); // Publish the message asynchronously
-    $("#messageInput").val(""); // Clear the input field after sending
-  }
-});
-
-// Event delegation for dynamically created elements
-$('#pollOptions').on('click', '.poll-option', async function() {
-  const key = $(this).data('key');
-
-  if (Math.floor(Date.now() / 1000) < currentPoll.timestamp) {
-    if (selectedAnswer == "") { 
-      selectedAnswer = key;
-      $('.poll-option').removeClass('selected');
-      $('.check-button').prop('disabled', true); // Disable all buttons
-      $(`.poll-option[data-key="${key}"]`).addClass('selected');
-      $(`.poll-option[data-key="${key}"] .check-button`).prop('disabled', false); // Enable the selected button
-      $(`.poll-option[data-key="${key}"] .check-button`).text("✔️"); // Add check icon
-  
-      // Publish answer
-      if (selectedAnswer) {
-        await agoraPublishPollResponse(selectedAnswer);
-      }
-    }
-
-  }
-});
-
-
-$("#createPollBtn").click(function () {
-  $('#pollModal').show();
-});
-
-// Handle form submission
-$('#pollForm').on('submit', async function(event) {
-  event.preventDefault(); // Prevent the default form submission
-
-  // Get the poll question and options
-  var question = $('#pollNewQuestion').val();
-
-  // Initialize an empty options object
-  var options = {};
-
-  // Collect options and their initial vote counts
-  options[$('#pollOption1').val()] = 0;
-  options[$('#pollOption2').val()] = 0;
-  if ($('#pollOption3').val()) {
-      options[$('#pollOption3').val()] = 0;
-  }
-  if ($('#pollOption4').val()) {
-      options[$('#pollOption4').val()] = 0;
-  }
-
-  console.log("You created poll " + question + " options " + options)
-  await agoraPublishPollQuestion(question, options);
-
-  // Close the modal after submitting
-  $('#pollModal').hide();
-
-  // Optionally, reset the form
-  $(this).trigger('reset');
-});
-
-
-$('.close').on('click', function(event) {
-  $('#pollModal').hide();
-});
-
-// When the user clicks anywhere outside of the modal, close it
-$(window).on('click', function(event) {
-  var modal = $('#pollModal');
-
-  if ($(event.target).is(modal)) {
-      modal.hide();
-  }
-});
 
 // MARK: AGORA FUNCTIONS
 async function agoraSetupRTM() {
@@ -212,42 +132,76 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function agoraPublishNewAuction(auctionName, staringPrince) { 
+async function sendBidPrice(bidPrice) { 
+  if (currentAuctionItem.majorRevision > 0) { 
+    if(bidPrice < currentAuctionItem.currentBid) { 
+      // Submitted bid price lower than current bid price
+      return false 
+    }
+
+    const metaDataItems = [
+      {
+        key : "auctionName", value : auctionName
+      },
+      {
+        key : "currentBid", value : bidPrice.toString()
+      },
+      {
+        key : "highestBidder", value : options.uid,
+      }, 
+      {
+        key : "lastUpdatedTimeStamp", value : Math.floor(Date.now() / 1000).toString(),
+      }
+    ];
+  
+    const metaOptions = { 
+      majorRevision : await agoraFetchMajorRevision(),
+      addTimeStamp : true,
+      addUserId : true
+    }
+  
+    try {
+      const result = await rtm.storage.updateChannelMetadata(channelName, "MESSAGE", metaDataItems, metaOptions);
+      console.log(result);
+      return true
+    } catch (status) {
+      console.log(status);
+      return false
+    }
+
+  }
+}
+
+async function agoraPublishNewAuction(auctionName, staringPrice) { 
   const metaDataItems = [
     {
-      key : "auctionName",
-      value : auctionName
+      key : "auctionName", value : auctionName
     },
     {
-      key : "startingPrice",
-      value : staringPrince.toString(),
+      key : "startingPrice", value : staringPrice.toString(),
     },
     {
-      key : "currentBid",
-      value : staringPrince.toString()
+      key : "currentBid", value : staringPrice.toString()
     },
     {
-      key : "highestBidder",
-      value : options.uid,
+      key : "highestBidder", value : options.uid,
     }, 
     {
-      key : "lastUpdatedTimeStamp",
-      value : Math.floor(Date.now() / 1000).toString(),
+      key : "lastUpdatedTimeStamp", value : Math.floor(Date.now() / 1000).toString(),
     }
   ];
 
   const metaOptions = { 
     majorRevision : await agoraFetchMajorRevision(),
-    lockName: "lockName",
     addTimeStamp : true,
     addUserId : true
   }
 
   try {
-    const result = await rtm.storage.setChannelMetadata( mainChannel, "MESSAGE", metaDataItems, metaOptions);
+    const result = await rtm.storage.setChannelMetadata(mainChannel, "MESSAGE", metaDataItems, metaOptions);
     console.log(result);
   } catch (status) {
-      console.log(status);
+    console.log(status);
   }
 }
 
@@ -261,23 +215,6 @@ async function agoraFetchMajorRevision() {
       return 0 
   }
 }
-
-// function UpdateAuctionFromRemoteUsers(metadataItems : [AgoraRtmMetadataItem], majorRevision: Int64) {
-//   // When auction is updated
-  
-//   if let auctionName = metadataItems.first(where: {$0.key == "auctionName"})?.value, let auctionStartingPrice = Int(metadataItems.first(where: {$0.key == "startingPrice"})?.value ?? "0") {
-//       print("UpdateAuction name \(auctionName) starting \(auctionStartingPrice)")
-//       let auctionName : String = auctionName
-//       let startPrice : Int = auctionStartingPrice
-//       let currentBid : Int = Int(metadataItems.first(where: {$0.key == "currentBid"})?.value ?? "0") ?? startPrice
-//       let highestBidder : String = metadataItems.first(where: {$0.key == "highestBidder"})?.value ?? ""
-//       let lastUpdatedTimeStamp : Int = Int(metadataItems.first(where: {$0.key == "timeIntervalSince1970"})?.value ?? "0") ?? 0
-      
-//       currentAuctionItem = CustomAuctionItem(majorRevision: majorRevision, auctionName: auctionName, startingPrice: startPrice, currentBid: currentBid, highestBidder: highestBidder, lastUpdatedTimeStamp: lastUpdatedTimeStamp)
-//   }
-  
-// }
-
 
 async function agoraDeleteAuctionStorage() {
   const metaDataItems = [
@@ -311,51 +248,22 @@ async function agoraDeleteAuctionStorage() {
   }
 }
 
-// MARK: Other functions
-function renderPoll() {
-
-  selectedAnswer = "";
-
-  $('#pollQuestion').text(currentPoll.question);
-  $('#userCount').text(`# Users: ${currentPoll.totalUsers}`);
-  $('#submissionCount').text(`# Submissions: ${currentPoll.totalSubmission}`);
-  $('#pollSender').text(`From: ${currentPoll.sender}`);
-
-  $('#pollOptions').empty(); // This will remove all options from the select element
-
-  $.each(currentPoll.options, function(key, value) {
-      $('#pollOptions').append(`
-          <div class="poll-option" data-key="${key}">
-              <button class="check-button">o</button>
-              <span>${key}</span>
-          </div>
-      `);
-  });
-
+function UpdateAuctionFromRemoteUsers(metadataItems, majorRevision) {
+  // When auction is updated
+  
+  // if let auctionName = metadataItems.first(where: {$0.key == "auctionName"})?.value, let auctionStartingPrice = Int(metadataItems.first(where: {$0.key == "startingPrice"})?.value ?? "0") {
+  //     print("UpdateAuction name \(auctionName) starting \(auctionStartingPrice)")
+  //     let auctionName : String = auctionName
+  //     let startPrice : Int = auctionStartingPrice
+  //     let currentBid : Int = Int(metadataItems.first(where: {$0.key == "currentBid"})?.value ?? "0") ?? startPrice
+  //     let highestBidder : String = metadataItems.first(where: {$0.key == "highestBidder"})?.value ?? ""
+  //     let lastUpdatedTimeStamp : Int = Int(metadataItems.first(where: {$0.key == "timeIntervalSince1970"})?.value ?? "0") ?? 0
+      
+  //     currentAuctionItem = CustomAuctionItem(majorRevision: majorRevision, auctionName: auctionName, startingPrice: startPrice, currentBid: currentBid, highestBidder: highestBidder, lastUpdatedTimeStamp: lastUpdatedTimeStamp)
+  // }
+  
 }
 
-function showResults() {
-  $('#pollOptions').empty(); // Clear options
-
-  $.each(currentPoll.options, function(key, value) {
-    const totalVotes = Object.values(currentPoll.options).reduce((a, b) => a + b, 0);
-    
-    // Calculate percentage, defaulting to 0 if totalVotes is 0
-    const percentage = totalVotes > 0 ? (value / totalVotes) * 100 : 0;
-
- 
-    // Append options with a class and data attribute
-    $('#pollOptions').append(`
-      <div class="poll-option" data-key="${key}">
-        ${key}: ${percentage.toFixed(2)}%
-      </div>
-    `);
-
-    if (key == selectedAnswer) { 
-      $(`.poll-option[data-key="${key}"]`).addClass('selected');
-    }
-  });
-}
 
 
 function generateUUID() {
@@ -364,19 +272,6 @@ function generateUUID() {
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
   });
-}
-
-// MARK: AGORA EVENT LISTENERS
-function handleRTMMessageEvent(event) {
-    const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
-    const channelName = event.channelName; // Which channel does this message come from
-    const topic = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
-    const messageType = event.messageType; // Which message type it is, Should be "STRING" or "BINARY".
-    const customType = event.customType; // User defined type
-    const publisher = event.publisher; // Message publisher
-    const message = event.message; // Message payload
-    const timestamp = event.timestamp; // Event timestamp
-    
 }
 
 function handleRTMPresenceEvent(event) {
