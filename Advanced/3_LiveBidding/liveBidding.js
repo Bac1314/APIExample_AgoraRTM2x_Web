@@ -47,12 +47,7 @@ $("#login").click(async function (e) {
               await agoraSubscribeChannel(mainChannel); // Subscribe to root channel events 
 
               $('#login').text('Logout'); 
-              // $("#sectionSubscribe").show();  // Show subscribe section after login 
-
-              // Refresh poll
-              renderPoll();
-              $('#sectionPoll').show(); //
-              $('#createPollBtn').show(); 
+              // $('#sectionAuction').show(); //
             }
       
           } catch (error) {
@@ -63,8 +58,7 @@ $("#login").click(async function (e) {
         agoraLogoutRTM();
 
         $('#login').text('Login'); // Change button text back to 'Login'
-        $('#sectionPoll').hide(); // hide poll section 
-        $('#createPollBtn').hide();
+        $('#sectionAuction').hide(); // hide section 
     }
 });
 
@@ -80,10 +74,9 @@ async function agoraSetupRTM() {
     }
 
     // Setup Event Listeners
-    // rtm.addEventListener("message", handleRTMMessageEvent);
     rtm.addEventListener("presence", handleRTMPresenceEvent);
-    rtm.addEventListener("storage", handleRTMMetaDataEvent)
-    rtm.addEventListener("linkState", handleRTMLinkStateEvent);
+    rtm.addEventListener("storage", handleRTMStorageEvent);
+    rtm.addEventListener("linkState", handleRTMLinkStateEvent); 
 
   }
 
@@ -132,7 +125,7 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function sendBidPrice(bidPrice) { 
+async function agoraSendBidPrice(bidPrice) { 
   if (currentAuctionItem.majorRevision > 0) { 
     if(bidPrice < currentAuctionItem.currentBid) { 
       // Submitted bid price lower than current bid price
@@ -274,6 +267,16 @@ function generateUUID() {
   });
 }
 
+
+$("#placeBidBtn").click(async function () {
+  // await agoraPublishNewAuction("Bac Testing", 20);
+  let result = await agoraSendBidPrice(currentAuctionItem.bidPrice + 10);
+  // if (result == true) { 
+  //   $("#placeBidBtn").
+  // }
+});
+
+// MARK: AGORA EVENT LISTENERS
 function handleRTMPresenceEvent(event) {
     const action = event.eventType; // Which action it is ,should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
     const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
@@ -355,7 +358,9 @@ function handleRTMLinkStateEvent(event) {
     $('#rtmlinkstate').text(currentState);
 }
 
-function handleRTMMetaDataEvent(event) { 
+function handleRTMStorageEvent(event) { 
+  console.log("Bac's handleRTMStorageEvent" + event);
+
   const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
   const channelName = event.channelName; // Which channel does this event come from
   const publisher = event.publisher; // Who trigger this event
@@ -363,5 +368,10 @@ function handleRTMMetaDataEvent(event) {
   const action = event.eventType; // Which action it is ,should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
   const timestamp = event.timestamp; // Event timestamp
+
+  if (action == "SNAPSHOT" || action == "SET" || action == "UPDATE") { 
+    // UpdateAuctionFromRemoteUsers(data, )
+    console.log("Bac's RTM MetaData action" + action + " data: " + data);
+  }
 }
 // window.onload = renderPoll;
