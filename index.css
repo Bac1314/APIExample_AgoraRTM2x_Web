@@ -101,12 +101,14 @@ body {
 }
 
 .customInputStyleFillWidth { 
-  border: 1.5px solid white;
-  border-radius: 20px;
+  /* border: 1.5px solid white;
+  border-radius: 20px; */
   background-color: transparent;
   width: -webkit-fill-available;
   color: white; 
   margin: 0rem 1rem;
+  border: 0;
+  outline: 0;
 }
 
 .customInputStyleFillWidth.inverse{ 

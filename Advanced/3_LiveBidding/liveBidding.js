@@ -75,8 +75,21 @@ async function agoraSetupRTM() {
 
     // Setup Event Listeners
     rtm.addEventListener("presence", handleRTMPresenceEvent);
-    rtm.addEventListener("storage", handleRTMStorageEvent);
+    // rtm.addEventListener("storage", handleRTMStorageEvent);
     rtm.addEventListener("linkState", handleRTMLinkStateEvent); 
+
+    // Handle storage event
+    rtm.addEventListener("storage", event => {
+      alert("storage alert");
+
+      const channelType = event.channelType;      // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
+      const channelName = event.channelName;      // Which channel does this event come from
+      const publisher = event.publisher;          // Who trigger this event
+      const storageType = event.storageType;      // Which category the event is, should be 'USER'、'CHANNEL'
+      const action = event.eventType;             // Which action it is ,should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
+      const data = event.data;                    // 'USER_METADATA' or 'CHANNEL_METADATA' payload
+      const timestamp = event.timestamp;          // Event timestamp
+    });
 
   }
 
@@ -126,16 +139,13 @@ async function agoraUnSubscribeChannel(channelName) {
 }
 
 async function agoraSendBidPrice(bidPrice) { 
-  if (currentAuctionItem.majorRevision > 0) { 
+  if (currentAuctionItem.majorRevision != 0) { 
     if(bidPrice < currentAuctionItem.currentBid) { 
       // Submitted bid price lower than current bid price
       return false 
     }
 
     const metaDataItems = [
-      {
-        key : "auctionName", value : auctionName
-      },
       {
         key : "currentBid", value : bidPrice.toString()
       },
@@ -154,7 +164,7 @@ async function agoraSendBidPrice(bidPrice) {
     }
   
     try {
-      const result = await rtm.storage.updateChannelMetadata(channelName, "MESSAGE", metaDataItems, metaOptions);
+      const result = await rtm.storage.updateChannelMetadata(mainChannel, "MESSAGE", metaDataItems, metaOptions);
       console.log(result);
       return true
     } catch (status) {
@@ -374,4 +384,3 @@ function handleRTMStorageEvent(event) {
     console.log("Bac's RTM MetaData action" + action + " data: " + data);
   }
 }
-// window.onload = renderPoll;
