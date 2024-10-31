@@ -1,7 +1,7 @@
 const { RTM } = AgoraRTM;
 
 let rtm;
-var agoraStreamChannel = null;
+let agoraStreamChannel;
 
 var options = {
     appid: null,
@@ -10,9 +10,9 @@ var options = {
     rtctoken: null
 };
 var isLoggedIn = false;
-var channels = []
-var selectedChannel = "Selected Channel";
-var defaultTopics = ["topic1","topic2"];
+var streamChannelName = "ChannelA"
+var selectedTopic = "selectedTopic";
+var topics = [];
 
 
 // MARK: BUTTON EVENT LISTENERS
@@ -35,6 +35,7 @@ $("#login").click(async function (e) {
 
               await agoraSetupRTM();
               await agoraLoginRTM();
+              await agoraJoinStreamChannel();
 
               $('#login').text('Logout'); 
               $("#sectionSubscribe").show();  // Show subscribe section after login 
@@ -64,40 +65,39 @@ $("#sendButton").click(function () {
 
 $("#subscribeBtn").click(async function() {
   try { 
-    let channelName = $("#channelInput").val();
+    let topicName = $("#topicInput").val();
 
-    if (channelName) { 
+    if (topicName) { 
       // Create custom channel, and push it to the list BEFORE subscribe, because Snapshot triggers immediate after subscribe
-      const customChannel = new CustomRTMChannel(channelName, [], []);
-      channels.push(customChannel);
+      const customTopic = new CustomRTMTopic(topicName, [], []);
+      topics.push(customTopic);
 
       // Subscribe to channel
-      await agoraSubscribeChannel(channelName);
+      await agoraJoinTopic(topicName);
 
       // Clear the input field after subscribing
-      $("#channelInput").val(""); 
+      $("#topicInput").val(""); 
 
       // Change target channel name
-      $('#selectedChannel').text(channelName); 
+      $('#selectedTopic').text(topicName); 
 
-      loadChannelMessages(channelName);
-      // renderChannelsList();
+      loadTopicMessages(topicName);
     }
 
     // If there is channels, show the Messages Section
-    if (channels.length > 0) { 
+    if (topics.length > 0) { 
       $("#sectionMessages").show(); // 
     }
 
   } catch (error) {
     console.error(error);
 
-    let channelName = $("#channelInput").val();
+    let topicName = $("#topicInput").val();
 
     // If there are errors, remove the channels added above
-    const channelIndex = channels.findIndex(customChannel => customChannel.channelName === channelName);
-    if (channelIndex !== -1) {
-      channelIndex.splice(channelIndex, 1);
+    const topicIndex = topics.findIndex(customTopic => customTopic.topicName === topicName);
+    if (topicIndex !== -1) {
+      topicIndex.splice(topicIndex, 1);
     }
   } 
   
@@ -115,11 +115,30 @@ async function agoraSetupRTM() {
     }
 
     // Setup Event Listeners
+    rtm.addEventListener("topic", handleRTMTopicEvent);
     rtm.addEventListener("message", handleRTMMessageEvent);
     rtm.addEventListener("presence", handleRTMPresenceEvent);
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
 
+}
+
+async function agoraJoinStreamChannel(){ 
+    const streamOptions ={
+      token : options.rtctoken,
+      withPresence : true,
+      beQuiet : false,
+      withMetadata : false,
+      withLock : false
+  };
+  try {
+    agoraStreamChannel = await rtm.createStreamChannel(streamChannelName);
+
+    const result = await agoraStreamChannel.join(streamOptions);
+    console.log(result);
+  } catch (status) {
+      console.log(status);
   }
+}
 
 async function agoraLoginRTM() {
   // Log in the RTM server.
@@ -140,8 +159,8 @@ function agoraLogoutRTM() {
       console.log(result);
       isLoggedIn = false; // Update the login status
 
-      channels.length = 0 // Reset the array
-      selectedChannel = "Selected Channel"; 
+      topics.length = 0 // Reset the array
+      selectedTopic = "selectedTopic"; 
   } catch (status) {
     alert("Logout RTM failed " + status);
       console.log(status);
@@ -149,35 +168,31 @@ function agoraLogoutRTM() {
 };
 
 
-async function agoraSubscribeChannel(channelName) { 
+async function agoraJoinTopic(topicName) { 
   try {
-      const result = await rtm.subscribe(channelName);
+      const result = await agoraStreamChannel.joinTopic(topicName, null);
       console.log(result);
     } catch (status) {
-      alert("Subscribe to " + channelName + " failed " + status);
+      alert("Join to " + topicName + " failed " + status);
       console.log(status);
     }
 }
 
-async function agoraUnSubscribeChannel(channelName) { 
+async function agoraLeaveTopic(topicName) { 
   try {
-      const result = await rtm.unSubscribeChannel(channelName);
-      console.log(result);
-    } catch (status) {
-      console.log(status);
-    }
+    const result = await agoraStreamChannel.leaveTopic(topicName);
+    console.log(result);
+  } catch (status) {
+    console.log(status);
+  }
 }
 
 async function agoraPublishMessage(message) {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
-  const publishOptions = { channelType: 'MESSAGE'}
   try {
-    const result = await rtm.publish(selectedChannel, message, publishOptions);
-
-    // Add to local view
-    // addMessageToChat(message, "local");
-
+    const result = await agoraStreamChannel.publishTopicMessage(selectedTopic, message);
+    console.log(result);
   } catch (status) {
     alert("Publish Message failed " + status);
     console.log(status);
@@ -185,43 +200,43 @@ async function agoraPublishMessage(message) {
 }
 
 // Render the channel list
-function renderChannelsList() {
-  const channelListElement = document.getElementById('channel-list');
-  channelListElement.innerHTML = ''; // Clear previous content
+function renderTopicsList() {
+  const topicListElement = document.getElementById('topic-list');
+  topicListElement.innerHTML = ''; // Clear previous content
 
-  channels.forEach(channel => {
-      const channelItem = document.createElement('div');
-      channelItem.className = 'channel-item';
+  topics.forEach(topic => {
+      const topicItem = document.createElement('div');
+      topicItem.className = 'topic-item';
 
       // Check if this channel is the selected one
-      if (channel.channelName === selectedChannel) {
-          channelItem.classList.add('selected-channel'); // Use classList.add
+      if (topic.topicName === selectedTopic) {
+        topicItem.classList.add('selected-topic'); // Use classList.add
       } else {
-          channelItem.classList.remove('selected-channel'); // Use classList.remove
+        topicItem.classList.remove('selected-topic'); // Use classList.remove
       }
       
-      channelItem.textContent = `${channel.channelName} #${channel.users.length}`;
-      channelItem.onclick = function() {
-        loadChannelMessages(channel.channelName);
+      topicItem.textContent = `${topic.topicName} #${topic.users.length}`;
+      topicItem.onclick = function() {
+        loadTopicMessages(topic.topicName);
       }; // on click listener
-      channelListElement.appendChild(channelItem);
+      topicListElement.appendChild(topicItem);
   });
 }
 
 // Load the target channel messages
-function loadChannelMessages(targetChannel) {
+function loadTopicMessages(targetTopic) {
 
-  selectedChannel = targetChannel;
-  $('#selectedChannel').val(targetChannel); 
+  selectedTopic = targetTopic;
+  $('#selectedTopic').val(targetTopic); 
 
   // Rerender channel list to show selected channel
-  renderChannelsList();
+  renderTopicsList();
   
   $('#chat-box').empty(); // Clear previous messages
 
-  const channelFound = channels.find(channel => channel.channelName === targetChannel);
+  const topicFound = topics.find(topic => topic.topicName === targetTopic);
 
-  channelFound.messages.forEach(customMessage => {
+  topicFound.messages.forEach(customMessage => {
     const messageContainer = $("<div></div>").addClass("message");
     const senderNameElement = $("<div></div>").addClass("sender-name").text(customMessage.publisher);
     const messageElement = $("<div></div>").text(customMessage.message);
@@ -250,26 +265,50 @@ function loadChannelMessages(targetChannel) {
 // MARK: AGORA EVENT LISTENERS
 
 function handleRTMMessageEvent(event) {
-    const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
-    const channelName = event.channelName; // Which channel does this message come from
-    const topic = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
-    const messageType = event.messageType; // Which message type it is, Should be "STRING" or "BINARY".
-    const customType = event.customType; // User defined type
-    const publisher = event.publisher; // Message publisher
-    const message = event.message; // Message payload
+  const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
+  const channelName = event.channelName; // Which channel does this message come from
+  const topic = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
+  const messageType = event.messageType; // Which message type it is, Should be "STRING" or "BINARY".
+  const customType = event.customType; // User defined type
+  const publisher = event.publisher; // Message publisher
+  const message = event.message; // Message payload
+  const timestamp = event.timestamp; // Event timestamp
+
+  // Handle the message here (e.g., log it, update UI, etc.)
+  console.log(`Bac's Received message from ${publisher}: topic: ${topic} message: ${message}`);
+
+  const topicFound = topics.find(topic => topic.topicName === topic);
+
+  if (topicFound) { 
+    const customMessage = new CustomRTMMessage(message, publisher);
+    topicFound.messages.push(customMessage);
+
+    loadTopicMessages(channelName);
+  }
+  
+}
+
+
+function handleRTMTopicEvent(event) {
+    const action = event.evenType; // Which action it is ,should be one of 'SNAPSHOT'、'JOIN'、'LEAVE'.
+    const channelName = event.channelName; // Which channel does this event come from
+    const publisher = event.userId; // Who trigger this event
+    const topicInfos = event.topicInfos; // Topic information payload
+    const totalTopics = event.totalTopics; // How many topics
     const timestamp = event.timestamp; // Event timestamp
+    
 
-    // Handle the message here (e.g., log it, update UI, etc.)
-    console.log(`Bac's Received message from ${publisher}: ${message}`);
+    // // Handle the message here (e.g., log it, update UI, etc.)
+    // console.log(`Bac's Received message from ${publisher}: ${topicInfos}`);
 
-    const channelFound = channels.find(channel => channel.channelName === channelName);
+    // const topicFound = topics.find(topic => topic.topicName === channelName);
 
-    if (channelFound) { 
-      const customMessage = new CustomRTMMessage(message, publisher);
-      channelFound.messages.push(customMessage);
+    // if (topicFound) { 
+    //   const customMessage = new CustomRTMMessage(message, publisher);
+    //   topicFound.messages.push(customMessage);
 
-      loadChannelMessages(channelName);
-    }
+    //   loadTopicMessages(channelName);
+    // }
     
 }
 
@@ -283,36 +322,37 @@ function handleRTMPresenceEvent(event) {
     const interval = event.interval; // Interval payload, only for interval event
     const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
     const timestamp = event.timestamp; // Event timestamp
+    const topic = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
+
 
     console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
 
-    // const chnIndex = channels.findIndex(u => u.channelName === channelName);
-    const channelFound = channels.find(channel => channel.channelName === channelName);
+    const topicFound = topics.find(topic => topic.topicName === topic);
 
     const user = new CustomRTMUser(channelType, channelName, publisher, states);
 
     switch (action) {
         case 'REMOTE_JOIN':
             // Add user to the array
-            if (channelFound) { 
-              channelFound.users.push(user);
+            if (topicFound) { 
+              topicFound.users.push(user);
             }
             
             break;
         case 'REMOTE_LEAVE':
             // Remove user from the array (assuming publisher is unique)
-            if (channelFound) { 
-              const userIndex = channelFound.users.findIndex(u => u.publisher === publisher);
+            if (topicFound) { 
+              const userIndex = topicFound.users.findIndex(u => u.publisher === publisher);
               if (userIndex !== -1) {
-                channelFound.users.splice(userIndex, 1);
+                topicFound.users.splice(userIndex, 1);
               }
             }
 
             break;
         case 'REMOTE_STATE_CHANGED':
             // Update user state if they already exist
-            if (channelFound) { 
-              const userFound = channelFound.users.find(user => user.publisher === publisher);
+            if (topicFound) { 
+              const userFound = topicFound.users.find(user => user.publisher === publisher);
 
               if (userFound) {
                 userFound.states = stateChanged; // Update the state
@@ -322,9 +362,9 @@ function handleRTMPresenceEvent(event) {
 
         case 'SNAPSHOT':
             // Populate the users array from the snapshot
-            if (channelFound) { 
+            if (topicFound) { 
 
-              channelFound.users.length = 0; // Reset the users
+              topicFound.users.length = 0; // Reset the users
 
               snapshot.forEach(userSnapshot => {
 
@@ -335,7 +375,7 @@ function handleRTMPresenceEvent(event) {
                     userSnapshot.userId,
                     userSnapshot.states
                 );
-                channelFound.users.push(user);
+                topicFound.users.push(user);
               });
 
             }
@@ -348,7 +388,7 @@ function handleRTMPresenceEvent(event) {
             break;
     }
 
-    renderChannelsList(); // Update the display
+    renderTopicsList(); // Update the display
 
 }
 
