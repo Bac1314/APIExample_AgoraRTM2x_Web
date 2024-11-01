@@ -72,8 +72,11 @@ $("#subscribeBtn").click(async function() {
       const customTopic = new CustomRTMTopic(topicName, [], []);
       topics.push(customTopic);
 
-      // Subscribe to channel
+      // Join topic as publisher
       await agoraJoinTopic(topicName);
+
+      // Subscribe topic to receive messages
+      await agoraSubscribeTopic(topicName);
 
       // Clear the input field after subscribing
       $("#topicInput").val(""); 
@@ -167,7 +170,7 @@ function agoraLogoutRTM() {
   }
 };
 
-
+// Join topic as publisher
 async function agoraJoinTopic(topicName) { 
   try {
       const result = await agoraStreamChannel.joinTopic(topicName, null);
@@ -176,6 +179,18 @@ async function agoraJoinTopic(topicName) {
       alert("Join to " + topicName + " failed " + status);
       console.log(status);
     }
+}
+
+// Subscribe topic to receive messages
+async function agoraSubscribeTopic(topicName){ 
+  try {
+    // Randomly subscribe to 64 publishers
+    const result = await agoraStreamChannel.subscribeTopic(topicName);
+    console.log(result);
+  } catch (status) {
+    alert("Join to " + topicName + " failed " + status);
+    console.log(status);
+  }
 }
 
 async function agoraLeaveTopic(topicName) { 
@@ -193,9 +208,33 @@ async function agoraPublishMessage(message) {
   try {
     const result = await agoraStreamChannel.publishTopicMessage(selectedTopic, message);
     console.log(result);
+
+
+    const topicFound = topics.find(customTopic => customTopic.topicName === selectedTopic);
+
+    if (topicFound) { 
+      const customMessage = new CustomRTMMessage(message, options.uid);
+      topicFound.messages.push(customMessage);
+
+      loadTopicMessages(selectedTopic);
+    }else{ 
+      console.log("Bac's handleRTMMessageEvent topic NOT found");
+    }
+  
   } catch (status) {
     alert("Publish Message failed " + status);
     console.log(status);
+  }
+}
+
+
+async function agoraSubscribeNewUsers() { 
+  // topics.forEach(topic => {
+  //   await agoraSubscribeTopic(topic.topicName);
+  // });
+
+  for (const topic of topics) {
+    await agoraSubscribeTopic(topic.topicName);
   }
 }
 
@@ -267,7 +306,7 @@ function loadTopicMessages(targetTopic) {
 function handleRTMMessageEvent(event) {
   const channelType = event.channelType; // Which channel type it is, Should be "STREAM", "MESSAGE" or "USER".
   const channelName = event.channelName; // Which channel does this message come from
-  const topic = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
+  const topicName = event.topicName; // Which Topic does this message come from, it is valid when the channelType is "STREAM".
   const messageType = event.messageType; // Which message type it is, Should be "STRING" or "BINARY".
   const customType = event.customType; // User defined type
   const publisher = event.publisher; // Message publisher
@@ -275,15 +314,17 @@ function handleRTMMessageEvent(event) {
   const timestamp = event.timestamp; // Event timestamp
 
   // Handle the message here (e.g., log it, update UI, etc.)
-  console.log(`Bac's Received message from ${publisher}: topic: ${topic} message: ${message}`);
+  console.log(`Bac's Received message from ${publisher}: topic: ${topicName} message: ${message}`);
 
-  const topicFound = topics.find(topic => topic.topicName === topic);
+  const topicFound = topics.find(customTopic => customTopic.topicName === topicName);
 
   if (topicFound) { 
     const customMessage = new CustomRTMMessage(message, publisher);
     topicFound.messages.push(customMessage);
 
-    loadTopicMessages(channelName);
+    loadTopicMessages(topicName);
+  }else{ 
+    console.log("Bac's handleRTMMessageEvent topic NOT found");
   }
   
 }
@@ -296,19 +337,14 @@ function handleRTMTopicEvent(event) {
     const topicInfos = event.topicInfos; // Topic information payload
     const totalTopics = event.totalTopics; // How many topics
     const timestamp = event.timestamp; // Event timestamp
-    
 
-    // // Handle the message here (e.g., log it, update UI, etc.)
-    // console.log(`Bac's Received message from ${publisher}: ${topicInfos}`);
-
-    // const topicFound = topics.find(topic => topic.topicName === channelName);
-
-    // if (topicFound) { 
-    //   const customMessage = new CustomRTMMessage(message, publisher);
-    //   topicFound.messages.push(customMessage);
-
-    //   loadTopicMessages(channelName);
-    // }
+   console.log("Bac's handleRTMTopicEvent topicInfos " + topicInfos);
+   console.log(topicInfos);
+   
+   // Need to subscribe to new topic publishers
+   for (const topicinfo of topicInfos) {
+     agoraSubscribeTopic(topicinfo.topicName);
+    }
     
 }
 
@@ -337,6 +373,9 @@ function handleRTMPresenceEvent(event) {
             if (topicFound) { 
               topicFound.users.push(user);
             }
+
+            // Subscribe to new users in all topics 
+            // agoraSubscribeNewUsers();
             
             break;
         case 'REMOTE_LEAVE':
