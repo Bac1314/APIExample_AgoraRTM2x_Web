@@ -186,9 +186,19 @@ async function agoraSubscribeTopic(topicName){
   try {
     // Randomly subscribe to 64 publishers
     const result = await agoraStreamChannel.subscribeTopic(topicName);
+
+    const topicFound = topics.find(customTopic => customTopic.topicName === topicName);
+
+    if (topicFound) { 
+      topicFound.users = result.succeedUsers;
+    }else{ 
+      console.log("Bac's handleRTMTopicEvent topic NOT found");
+    }
+  
+
     console.log(result);
   } catch (status) {
-    alert("Join to " + topicName + " failed " + status);
+    alert("Subscribe to " + topicName + " failed " + status);
     console.log(status);
   }
 }
@@ -196,6 +206,8 @@ async function agoraSubscribeTopic(topicName){
 async function agoraLeaveTopic(topicName) { 
   try {
     const result = await agoraStreamChannel.leaveTopic(topicName);
+
+
     console.log(result);
   } catch (status) {
     console.log(status);
@@ -208,7 +220,6 @@ async function agoraPublishMessage(message) {
   try {
     const result = await agoraStreamChannel.publishTopicMessage(selectedTopic, message);
     console.log(result);
-
 
     const topicFound = topics.find(customTopic => customTopic.topicName === selectedTopic);
 
@@ -228,13 +239,14 @@ async function agoraPublishMessage(message) {
 }
 
 
-async function agoraSubscribeNewUsers() { 
-  // topics.forEach(topic => {
-  //   await agoraSubscribeTopic(topic.topicName);
-  // });
-
-  for (const topic of topics) {
-    await agoraSubscribeTopic(topic.topicName);
+async function agoraSubscribeNewUsers(topicName) { 
+  try {
+    // Randomly subscribe to 64 publishers
+    const result = await agoraStreamChannel.subscribeTopic(topicName);
+    console.log(result);
+  } catch (status) {
+    alert("Subscribe to " + topicName + " failed " + status);
+    console.log(status);
   }
 }
 
@@ -343,7 +355,18 @@ function handleRTMTopicEvent(event) {
    
    // Need to subscribe to new topic publishers
    for (const topicinfo of topicInfos) {
-     agoraSubscribeTopic(topicinfo.topicName);
+    const topicFound = topics.find(customTopic => customTopic.topicName === topicinfo.topicName);
+
+    if (topicFound) { 
+      agoraSubscribeNewUsers(topicinfo.topicName); // Subscribe to new publishers 
+
+      const publisherUserIds = topicinfo.publishers.map(publisher => publisher.publisherUserId);
+      topicFound.users = publisherUserIds;
+
+    }else{ 
+      console.log("Bac's handleRTMTopicEvent topic NOT found");
+    }
+  
     }
     
 }
