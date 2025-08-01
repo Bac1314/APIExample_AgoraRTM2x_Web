@@ -48,11 +48,15 @@ $("#login").click(async function (e) {
     }
 });
 
+// Update sendButton click to use selected type
 $("#sendButton").click(function () {
   const message = $("#messageInput").val().trim();
-
+  let customtype = $('input[name="messageType"]:checked').val();
+  if (customtype === 'custom') {
+    customtype = $('#customTypeInput').val().trim();
+  }
   if (message !== "") {
-    agoraPublishMessage(message); // Publish the message asynchronously
+    agoraPublishMessage(message, customtype); // Pass customtype
     $("#messageInput").val(""); // Clear the input field after sending
   }
 });
@@ -98,12 +102,28 @@ $("#subscribeBtn").click(async function() {
   
 });
 
+// Show/hide custom type input based on selection
+$(document).ready(function() {
+  $('input[name="messageType"]').on('change', function() {
+    if ($(this).val() === 'custom') {
+      $('#customTypeInput').show();
+    } else {
+      $('#customTypeInput').hide();
+    }
+  });
+});
+
 
 // MARK: AGORA FUNCTIONS
 async function agoraSetupRTM() {
     // Initialize the RTM client.
+    // AgoraRTM.setArea({ areaCodes: ['JAPAN'] })
+
     try {
-      rtm = new RTM(options.appid, options.uid);
+      const rtmConfig = {
+        cloudProxy : false
+      };
+      rtm = new RTM(options.appid, options.uid, rtmConfig);
     } catch (status) {
       alert("Setup RTM failed " + status);
       console.log(status);
@@ -113,6 +133,7 @@ async function agoraSetupRTM() {
     rtm.addEventListener("message", handleRTMMessageEvent);
     rtm.addEventListener("presence", handleRTMPresenceEvent);
     rtm.addEventListener("linkState", handleRTMLinkStateEvent);
+    rtm.addEventListener("tokenPrivilegeWillExpire", handleTokenPrivilegeWillExpireEvent);
 
   }
 
@@ -163,13 +184,19 @@ async function agoraUnSubscribeChannel(channelName) {
     }
 }
 
-async function agoraPublishMessage(message) {
+async function agoraPublishMessage(message, customtype) {
   // const payload = { type: "text", message: message };
   // const publishMessage = JSON.stringify(payload);
-  const publishOptions = { channelType: 'MESSAGE'}
+  const publishOptions = { 
+    channelType: 'MESSAGE', 
+    customType: customtype
+  }
+
+  console.log(`Bac's agoraPublishMessage ${message} customtype: ${customtype} to channel: ${selectedChannel} `);
+
+
   try {
     const result = await rtm.publish(selectedChannel, message, publishOptions);
-
     // Add to local view
     // addMessageToChat(message, "local");
 
@@ -255,7 +282,7 @@ function handleRTMMessageEvent(event) {
     const timestamp = event.timestamp; // Event timestamp
 
     // Handle the message here (e.g., log it, update UI, etc.)
-    console.log(`Bac's Received message from ${publisher}: ${message}`);
+    console.log(`Bac's Received message from ${publisher} customType: ${customType} message: ${message} `);
 
     const channelFound = channels.find(channel => channel.channelName === channelName);
 
@@ -285,6 +312,19 @@ function handleRTMPresenceEvent(event) {
     const channelFound = channels.find(channel => channel.channelName === channelName);
 
     const user = new CustomRTMUser(channelType, channelName, publisher, states);
+
+    // Add presence data to messages box 
+    if (channelFound) { 
+        if (Object.keys(states).length === 0) {
+          console.log('Empty state received for', publisher);
+        } else {
+          let presentEvent = "Presence Event: " + JSON.stringify(states, null, 2);
+          const customMessage = new CustomRTMMessage(presentEvent, publisher);
+          channelFound.messages.push(customMessage);
+
+          loadChannelMessages(channelName);
+        }
+    }
 
     switch (action) {
         case 'REMOTE_JOIN':
@@ -361,6 +401,8 @@ function handleRTMLinkStateEvent(event) {
     $('#rtmlinkstate').text(currentState);
 }
 
-
+function handleTokenPrivilegeWillExpireEvent(event) { 
+  console.log("Bac's Token Privilege Will Expire Event");
+}
 //   window.onload = setupRTM;
 

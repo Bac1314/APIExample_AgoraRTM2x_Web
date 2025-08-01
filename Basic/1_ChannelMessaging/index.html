@@ -115,6 +115,32 @@
                   <!-- Chat messages will be dynamically added here -->
                 </div>
 
+                <!-- Selection Bar Start -->
+                  <div id="messageTypeBar">
+                    <label><b>Custom Message Type: </b></label>
+                    <label>
+                      <input type="radio" name="messageType" value="assistant.transcription" checked>
+                     none
+                    </label>
+                    <label>
+                      <input type="radio" name="messageType" value="assistant.transcription">
+                      assistant.transcription 
+                    </label>
+                    <label>
+                      <input type="radio" name="messageType" value="user.transcription">
+                      user.transcription 
+                    </label>
+                    <label>
+                      <input type="radio" name="messageType" value="custom">
+                      Custom
+                    </label>
+                    <label> 
+                      <input type="text" id="customTypeInput" class="customInputStyle inverse" placeholder="Custom type..." style="display:none;" >
+                    </label>
+                  </div>
+                  <!-- Selection Bar End -->
+
+                   <!-- Message Input Section -->
                 <div class="input-area inverse">
                     <input type="text" id="messageInput" class="customInputStyleFillWidth inverse"  placeholder="Type a message...">
                     <button id="sendButton" class="customButton fillBGAccent" >Send</button>
