@@ -86,7 +86,17 @@
     margin-left: auto;
     text-align: right;
     border-radius: 16px;
-    background-color: mediumseagreen;
+    background-color: royalblue;
+    padding: 8px 10px;
+    color: white;
+    width: fit-content;
+}
+
+.remote-presence-message-design  {
+    margin-left: auto;
+    text-align: right;
+    border-radius: 16px;
+    background-color: rgb(232, 158, 20);
     padding: 8px 10px;
     color: white;
     width: fit-content;

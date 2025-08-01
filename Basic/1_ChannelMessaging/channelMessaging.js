@@ -256,8 +256,16 @@ function loadChannelMessages(targetChannel) {
         messageContainer.addClass("local-message-alignment");
         messageElement.addClass("local-message-design")
     } else {
+      
+      if (customMessage.customMessageType === 'presence') {
+        // Presence event 
+        messageContainer.addClass("remote-message-alignment");
+        messageElement.addClass("remote-presence-message-design")
+      } else { 
+        // Normal message
         messageContainer.addClass("remote-message-alignment");
         messageElement.addClass("remote-message-design")
+      }
     }
   
     // Append the message container to the chat box
@@ -319,7 +327,7 @@ function handleRTMPresenceEvent(event) {
           console.log('Empty state received for', publisher);
         } else {
           let presentEvent = "Presence Event: " + JSON.stringify(states, null, 2);
-          const customMessage = new CustomRTMMessage(presentEvent, publisher);
+          const customMessage = new CustomRTMMessage(presentEvent, publisher, 'presence');
           channelFound.messages.push(customMessage);
 
           loadChannelMessages(channelName);
