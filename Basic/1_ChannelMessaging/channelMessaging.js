@@ -314,7 +314,7 @@ function handleRTMPresenceEvent(event) {
     const snapshot = event.snapshot; // Snapshot payload, only for snapshot event
     const timestamp = event.timestamp; // Event timestamp
 
-    console.log(`Bac's Received message from ${publisher}: ${action} ${snapshot}`);
+    console.log(`Bac's Received Presence from: ${publisher} action: ${action} snapshot: ${snapshot}`);
 
     // const chnIndex = channels.findIndex(u => u.channelName === channelName);
     const channelFound = channels.find(channel => channel.channelName === channelName);
@@ -323,15 +323,12 @@ function handleRTMPresenceEvent(event) {
 
     // Add presence data to messages box 
     if (channelFound) { 
-        if (Object.keys(states).length === 0) {
-          console.log('Empty state received for', publisher);
-        } else {
-          let presentEvent = "Presence Event: " + JSON.stringify(states, null, 2);
-          const customMessage = new CustomRTMMessage(presentEvent, publisher, 'presence');
-          channelFound.messages.push(customMessage);
+        let message = `Presence Event - publisher:${publisher} action:${action} channel:${channelName}, interval:${interval}, states: ${JSON.stringify(states)}, snapshot:${JSON.stringify(snapshot)}`;
 
-          loadChannelMessages(channelName);
-        }
+        // Create a custom message for presence event
+        const customMessage = new CustomRTMMessage(message, publisher, 'presence');
+        channelFound.messages.push(customMessage); 
+        loadChannelMessages(channelName);
     }
 
     switch (action) {
