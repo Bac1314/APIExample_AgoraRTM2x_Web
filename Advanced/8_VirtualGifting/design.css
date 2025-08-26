@@ -1,0 +1,50 @@
+
+/* Horizontal scroll for gift list */
+#gift-list {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 8px;
+  padding-top: 8px;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+/* Gift button and image sizing */
+.gift-img-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.gift-img-btn img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.1s;
+}
+
+.gift-img-btn:hover img {
+  transform: scale(1.15);
+}
+
+.gift-float {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  z-index: 9999;
+  transform: translateX(-50%);
+  animation: float-up 1.5s cubic-bezier(.4,2,.6,1) forwards;
+  pointer-events: none;
+  width: 80px;
+  height: 80px;
+}
+@keyframes float-up {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1);}
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-300px) scale(1.2);}
+}
