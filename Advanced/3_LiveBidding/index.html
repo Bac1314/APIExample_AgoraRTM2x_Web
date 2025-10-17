@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="design.css">
 
 
-  <title>Live Auction</title>
+  <title>Live Auction - Agora RTM Demo</title>
   </head>
   <body>
       <div class="container-fluid banner">
@@ -78,26 +78,56 @@
 
         <!-- MAIN CONTENT -->
         <br><br>
-        <!-- style="display: none;" -->
-        <div id="sectionAuction" >
+        <div id="sectionAuction" style="display: none;">
 
+          <!-- Auction Item Display -->
           <div class="customrow roundedcardbg_white" style="width: 35%;"> 
             <img src="../../Assets/charizard.jpg" style="width: 50%;">
 
             <div style="width: 50%; padding: 1rem;">
               <div class="timer" style="font-size: x-small;">
-                  <span class="ending">ENDING IN</span>
-                  <span id="time">365 days</span>
+                  <span class="ending">LIVE AUCTION</span>
+                  <span id="auction-status" class="status-live">ACTIVE</span>
               </div>
-              <div style="font-size: medium; font-weight: bold;">Charizard PSA 10</div> <br>
+              <div style="font-size: medium; font-weight: bold;" id="auction-name">Charizard PSA 10</div> <br>
+              <div style="font-size: small;">Starting Price: $<span id="starting-price">100</span></div>
               <div style="font-size: small;">Current bid</div>
               <div style="font-size: x-large; font-weight: bold;" id="bid-amount">$100</div>
-              <div style="font-size: small;" id="highest-bidder">by Highest Bidder</div> <br>
+              <div style="font-size: small;" id="highest-bidder">by No bidders yet</div>
+              <div style="font-size: x-small; color: #666;" id="last-updated">Updated just now</div> <br>
 
-              <button id="placeBidBtn" class="customButton fillBGAccent">Place Bid</button>
+              <div class="bid-controls">
+                <input type="number" id="bid-input" class="customInputStyle" placeholder="Enter bid amount" min="0" step="10">
+                <button id="placeBidBtn" class="customButton fillBGAccent">Place Bid</button>
+                <button id="quickBidBtn" class="customButton">Quick Bid (+$10)</button>
+              </div>
+
+              <div id="bid-status" class="bid-status" style="margin-top: 10px; display: none;"></div>
 
             </div>
           </div>
+
+          <br><br>
+
+          <!-- Auction Management (for creating new auctions) -->
+          <div class="auction-management">
+            <h4>Auction Management</h4>
+            <div class="management-controls">
+              <input type="text" id="new-auction-name" class="customInputStyle" placeholder="Auction item name" style="width: 200px; margin-right: 10px;">
+              <input type="number" id="new-starting-price" class="customInputStyle" placeholder="Starting price" min="1" style="width: 120px; margin-right: 10px;">
+              <button id="createAuctionBtn" class="customButton fillBGAccent">Create New Auction</button>
+              <button id="endAuctionBtn" class="customButton" style="background-color: #dc3545;">End Current Auction</button>
+            </div>
+          </div>
+
+          <br><br>
+
+          <!-- Active Users -->
+          <div class="active-users">
+            <h4>Active Users (<span id="user-count">0</span>)</h4>
+            <div id="users-list" class="users-container"></div>
+          </div>
+
         </div>
 
         <br><br>

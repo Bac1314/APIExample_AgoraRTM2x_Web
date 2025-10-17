@@ -1,3 +1,11 @@
+.auction-item {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
 .poll-item {
     background: black;
     border-radius: 16px;
@@ -83,4 +91,136 @@
 form {
     display: flex;
     flex-direction: column; /* Stack inputs vertically */
+}
+
+/* Live Auction Specific Styles */
+.auction-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.status-live {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-disconnected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.bid-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bid-controls input {
+    margin-bottom: 8px;
+}
+
+.bid-status {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.bid-status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.bid-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.bid-status.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.auction-management {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.auction-management h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.management-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.active-users {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.active-users h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.users-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.user-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ending {
+    color: #666;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .customrow {
+        width: 90% !important;
+    }
+    
+    .management-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .management-controls input,
+    .management-controls button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .bid-controls {
+        width: 100%;
+    }
 }
