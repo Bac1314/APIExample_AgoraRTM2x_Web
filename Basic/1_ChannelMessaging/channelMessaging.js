@@ -117,11 +117,15 @@ $(document).ready(function() {
 // MARK: AGORA FUNCTIONS
 async function agoraSetupRTM() {
     // Initialize the RTM client.
-    // AgoraRTM.setArea({ areaCodes: ['JAPAN'] })
+    const areaCode = $("#areaCode").val();
+    if (areaCode) {
+      AgoraRTM.setArea({ areaCodes: [areaCode] });
+    }
 
     try {
+      const useCloudProxy = $("#cloudProxy").is(":checked");
       const rtmConfig = {
-        cloudProxy : false
+        cloudProxy: useCloudProxy
       };
       rtm = new RTM(options.appid, options.uid, rtmConfig);
     } catch (status) {

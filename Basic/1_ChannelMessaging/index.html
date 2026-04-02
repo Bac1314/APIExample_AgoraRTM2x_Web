@@ -71,7 +71,28 @@
           </div>
     
           <p class="customTip">Note: Leave token input empty if app certificate is NOT enabled</p>
-    
+
+          <div class="row join-info-group">
+            <div class="col-sm">
+              <p class="join-info-text">Area Code</p>
+              <select class="customInputStyle" id="areaCode">
+                <option value="">None (Global)</option>
+                <option value="JAPAN">Japan</option>
+                <option value="CHINA">China</option>
+                <option value="ASIA">Asia</option>
+                <option value="EUROPE">Europe</option>
+                <option value="INDIA">India</option>
+                <option value="NORTH_AMERICA">North America</option>
+              </select>
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">Cloud Proxy</p>
+              <label style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                <input type="checkbox" id="cloudProxy"> Enable Cloud Proxy
+              </label>
+            </div>
+          </div>
+
         </form>
 
         <br><hr class="roundedHorDivider"> <br>
